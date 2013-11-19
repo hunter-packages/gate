@@ -18,7 +18,7 @@ include("./cmake/HunterGate.cmake")
 include(hunter_add_package)
 hunter_add_package(Sugar)
 
-# add downloaded package in project
+# add downloaded package to project
 include("${SUGAR_ROOT}/cmake/Sugar")
 include(sugar_status_print)
 
