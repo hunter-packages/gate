@@ -6,11 +6,13 @@ before_install:
     - wget http://www.cmake.org/files/v2.8/cmake-2.8.10.tar.gz
     - tar xf *.tar.gz
     - cd cmake-*
-    - ./configure
-    - make
 
 install:
+    - sudo apt-get install libcurl3-dev
+    - ./bootstrap --system-curl
+    - make
     - sudo make install
+    - cd ..
 
 script:
     - mkdir _builds
