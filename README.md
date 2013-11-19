@@ -16,8 +16,8 @@ This is a gate file to [hunter](https://github.com/ruslo/hunter) package manager
 
 ## Effects
 * Try to detect `hunter`:
- * test environment variable `HUNTER_ROOT` (**recommended**: control, shared downloads and builds)
  * test cmake variable `HUNTER_ROOT` (control, shared downloads and builds)
+ * test environment variable `HUNTER_ROOT` (**recommended**: control, shared downloads and builds)
  * test directory `${HOME}/HunterPackages` (shared downloads and builds)
  * test directory `HunterPackages` in current project sources (**not** recommended: no share, local downloads and builds)
 * If not detected - download it using `HunterDownload.cmake.in` script and set `HUNTER_ROOT` variable

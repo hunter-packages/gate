@@ -3,6 +3,20 @@
 
 cmake_minimum_required(VERSION 2.8.10)
 
+if(NOT "--${HUNTER_ROOT}__" STREQUAL "--__")
+  # Hunter detected by cmake variable
+  if(NOT EXISTS "${HUNTER_ROOT}/cmake/Hunter")
+    message(
+        FATAL_ERROR
+        "HUNTER_ROOT(cmake): '${HUNTER_ROOT}'"
+        "but no file '${HUNTER_ROOT}/cmake/Hunter'"
+    )
+  endif()
+  message(STATUS "[hunter] detected by cmake variable: '${HUNTER_ROOT}'")
+  include("${HUNTER_ROOT}/cmake/Hunter")
+  return()
+endif()
+
 if(NOT "--$ENV{HUNTER_ROOT}__" STREQUAL "--__")
   # Hunter detected by environment
   if(NOT EXISTS "$ENV{HUNTER_ROOT}/cmake/Hunter")
@@ -14,20 +28,6 @@ if(NOT "--$ENV{HUNTER_ROOT}__" STREQUAL "--__")
   endif()
   set(HUNTER_ROOT "$ENV{HUNTER_ROOT}")
   message(STATUS "[hunter] detected by environment variable: '${HUNTER_ROOT}'")
-  include("${HUNTER_ROOT}/cmake/Hunter")
-  return()
-endif()
-
-if(NOT "--${HUNTER_ROOT}__" STREQUAL "--__")
-  # Hunter detected by cmake variable
-  if(NOT EXISTS "${HUNTER_ROOT}/cmake/Hunter")
-    message(
-        FATAL_ERROR
-        "HUNTER_ROOT(cmake): '${HUNTER_ROOT}'"
-        "but no file '${HUNTER_ROOT}/cmake/Hunter'"
-    )
-  endif()
-  message(STATUS "[hunter] detected by cmake variable: '${HUNTER_ROOT}'")
   include("${HUNTER_ROOT}/cmake/Hunter")
   return()
 endif()
