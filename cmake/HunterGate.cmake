@@ -56,7 +56,7 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/HunterPackages")
         FATAL_ERROR
         "HunterPackages found in '${HUNTER_ROOT}', "
         "but '${HUNTER_ROOT}/cmake/Hunter' not exists. "
-        "Please remove '${HUNTER_ROT}'."
+        "Please remove '${HUNTER_ROOT}'."
     )
   endif()
   message(STATUS "[hunter] detected in current project: '${HUNTER_ROOT}'")
