@@ -1,0 +1,21 @@
+language:
+    - cpp
+
+before_install:
+    # install cmake 2.8.10 manually
+    - wget http://www.cmake.org/files/v2.8/cmake-2.8.10.tar.gz
+    - tar xf *.tar.gz
+    - cd cmake-*
+    - ./configure
+    - make
+
+install:
+    - sudo make install
+
+script:
+    - mkdir _builds
+    - cd _builds
+    # download all
+    - cmake ..
+    # if run generate again, no download needed
+    - cmake ..
