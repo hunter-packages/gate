@@ -1,3 +1,12 @@
+| linux                                     | macosx                                    |
+|-------------------------------------------|-------------------------------------------|
+| [![Build Status][link_master]][link_gate] | [![Build Status][link_macosx]][link_gate] |
+
+
+[link_master]: https://travis-ci.org/hunter-packages/gate.png?branch=master
+[link_macosx]: https://travis-ci.org/hunter-packages/gate.png?branch=travis-ci.macosx
+[link_gate]: https://travis-ci.org/hunter-packages/gate
+
 This is a gate file to [hunter](https://github.com/ruslo/hunter) package manager.
 
 ## Usage
@@ -18,3 +27,6 @@ On success this message will be printed:
 ```
 [hunter] HUNTER_ROOT: /home/travis/HunterPackages
 ```
+
+## Example
+* https://github.com/hunter-packages/gate/blob/master/CMakeLists.txt
