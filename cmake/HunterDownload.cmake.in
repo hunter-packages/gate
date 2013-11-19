@@ -1,0 +1,31 @@
+# Copyright (c) 2013, Ruslan Baratov
+# All rights reserved.
+
+cmake_minimum_required(VERSION 2.8.10) # SHA1
+
+include(ExternalProject)
+
+if("--@HUNTER_ROOT@__" STREQUAL "--__")
+  message(FATAL_ERROR "HUNTER_ROOT is empty")
+endif()
+
+set(VERSION "v0.0.1")
+set(HASH ce4f0ce27361402e608a0f9709025d993f94541d)
+
+ExternalProject_Add(
+    Hunter
+    URL
+    "https://github.com/ruslo/hunter/archive/${VERSION}.tar.gz"
+    URL_HASH
+    SHA1=${HASH}
+    DOWNLOAD_DIR
+    "@HUNTER_ROOT@"
+    SOURCE_DIR
+    "@HUNTER_ROOT@"
+    CONFIGURE_COMMAND
+    ""
+    BUILD_COMMAND
+    ""
+    INSTALL_COMMAND
+    ""
+)

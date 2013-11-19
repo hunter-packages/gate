@@ -1,0 +1,27 @@
+# Copyright (c) 2013, Ruslan Baratov
+# All rights reserved.
+
+cmake_minimum_required(VERSION 2.8.10)
+project(gate-usage-example)
+
+# 1. Try to detect hunter by:
+#   * cmake variable
+#   * environment variable
+#   * in HOME (HunterPackages directory)
+#   * in current source dir (HunterPackages directory)
+# 2. if failed, download it using HunterDownload.cmake.in script
+# 3. set HUNTER_ROOT to point to result directory
+# 4. include master file: 'include(${HUNTER_ROOT}/cmake/Hunter)
+include("./cmake/HunterGate.cmake")
+
+# now hunter can be used, like
+include(hunter_add_package)
+hunter_add_package(Sugar)
+
+# add downloaded package in project
+include("${SUGAR_ROOT}/cmake/Sugar")
+include(sugar_status_print)
+
+# use downloaded package
+set(SUGAR_STATUS_PRINT ON CACHE BOOL "")
+sugar_status_print("Hello!")
