@@ -3,7 +3,7 @@
 
 cmake_minimum_required(VERSION 2.8.10)
 
-if(NOT "--${HUNTER_ROOT}__" STREQUAL "--__")
+if(HUNTER_ROOT)
   # Hunter detected by cmake variable
   if(NOT EXISTS "${HUNTER_ROOT}/cmake/Hunter")
     message(
@@ -12,12 +12,14 @@ if(NOT "--${HUNTER_ROOT}__" STREQUAL "--__")
         "but no file '${HUNTER_ROOT}/cmake/Hunter'"
     )
   endif()
-  message(STATUS "[hunter] detected by cmake variable: '${HUNTER_ROOT}'")
   include("${HUNTER_ROOT}/cmake/Hunter")
+  include(hunter_status_debug)
+  hunter_status_debug("Detected by cmake variable")
   return()
 endif()
 
-if(NOT "--$ENV{HUNTER_ROOT}__" STREQUAL "--__")
+string(COMPARE NOTEQUAL "$ENV{HUNTER_ROOT}" "" _hunter_result)
+if(_hunter_result)
   # Hunter detected by environment
   if(NOT EXISTS "$ENV{HUNTER_ROOT}/cmake/Hunter")
     message(
@@ -27,12 +29,14 @@ if(NOT "--$ENV{HUNTER_ROOT}__" STREQUAL "--__")
     )
   endif()
   set(HUNTER_ROOT "$ENV{HUNTER_ROOT}")
-  message(STATUS "[hunter] detected by environment variable: '${HUNTER_ROOT}'")
   include("${HUNTER_ROOT}/cmake/Hunter")
+  include(hunter_status_debug)
+  hunter_status_debug("Detected by environment variable")
   return()
 endif()
 
-if(NOT "--$ENV{HOME}__" STREQUAL "--__")
+string(COMPARE NOTEQUAL "$ENV{HOME}" "" _hunter_result)
+if(_hunter_result)
   set(HUNTER_ROOT "$ENV{HOME}/HunterPackages")
   if(EXISTS "${HUNTER_ROOT}")
     if(NOT EXISTS "${HUNTER_ROOT}/cmake/Hunter")
@@ -43,8 +47,9 @@ if(NOT "--$ENV{HOME}__" STREQUAL "--__")
           "Please remove '${HUNTER_ROOT}'."
       )
     endif()
-    message(STATUS "[hunter] detected in HOME(environment): '${HUNTER_ROOT}'")
     include("${HUNTER_ROOT}/cmake/Hunter")
+    include(hunter_status_debug)
+    hunter_status_debug("detected in HOME(environment)")
     return()
   endif()
 endif()
@@ -59,13 +64,15 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/HunterPackages")
         "Please remove '${HUNTER_ROOT}'."
     )
   endif()
-  message(STATUS "[hunter] detected in current project: '${HUNTER_ROOT}'")
   include("${HUNTER_ROOT}/cmake/Hunter")
+  include(hunter_status_debug)
+  hunter_status_debug("detected in current project")
   return()
 endif()
 
 # Not found, need to download
-if(NOT "--$ENV{HOME}__" STREQUAL "--__")
+string(COMPARE NOTEQUAL "$ENV{HOME}" "" _hunter_result)
+if(_hunter_result)
   set(HUNTER_ROOT "$ENV{HOME}/HunterPackages")
 else()
   if(NOT PROJECT_SOURCE_DIR)

@@ -5,7 +5,8 @@ cmake_minimum_required(VERSION 2.8.10) # SHA1
 
 include(ExternalProject)
 
-if("--@HUNTER_ROOT@__" STREQUAL "--__")
+string(COMPARE EQUAL "@HUNTER_ROOT@" "" root_is_empty)
+if(root_is_empty)
   message(FATAL_ERROR "HUNTER_ROOT is empty")
 endif()
 
