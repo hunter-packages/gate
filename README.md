@@ -4,7 +4,7 @@
 
 
 [link_master]: https://travis-ci.org/hunter-packages/gate.png?branch=master
-[link_macosx]: https://travis-ci.org/hunter-packages/gate.png?branch=travis-ci.macosx
+[link_macosx]: https://travis-ci.org/hunter-packages/gate.png?branch=travis.macosx
 [link_gate]: https://travis-ci.org/hunter-packages/gate
 
 This is a gate file to [hunter](https://github.com/ruslo/hunter) package manager.
