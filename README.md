@@ -12,7 +12,7 @@ This is a gate file to [hunter](https://github.com/ruslo/hunter) package manager
 ## Usage
 
 * copy two files to project: `cmake/{HunterGate.cmake, HunterDownload.cmake.in}`
-* include gate file: `include("${CMAKE_CURRENT_LIST_DIR}/cmake/HunterGate.cmake")`
+* include gate file: `include("cmake/HunterGate.cmake")`
 
 ## Effects
 * Try to detect `hunter`:

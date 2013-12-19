@@ -1,18 +1,18 @@
 language:
     - cpp
 
-before_install:
-    # install cmake 2.8.10 manually
-    - wget http://www.cmake.org/files/v2.8/cmake-2.8.10.tar.gz
-    - tar xf *.tar.gz
-    - cd cmake-*
-
 install:
+    # install cmake 2.8.10 manually, see
+    #     * https://github.com/travis-ci-tester/travis-test-cmake
+    - wget http://www.cmake.org/files/v2.8/cmake-2.8.10.tar.gz
+    - tar xf cmake-2.8.10.tar.gz
+    - cd cmake-2.8.10
     - sudo apt-get install libcurl3-dev
     - ./bootstrap --system-curl
     - make
     - sudo make install
     - cd ..
+    # -- end
 
 script:
     - mkdir _builds
