@@ -10,8 +10,8 @@ if(root_is_empty)
   message(FATAL_ERROR "HUNTER_ROOT is empty")
 endif()
 
-set(VERSION "v0.0.9")
-set(HASH 58972f5fd1c9d01dd942217691b7ef48c8b4cf08)
+set(VERSION "v0.0.10")
+set(HASH 8f79e2101e7b977d6b4047ef1e4557e88aa46c17)
 
 ExternalProject_Add(
     Hunter
