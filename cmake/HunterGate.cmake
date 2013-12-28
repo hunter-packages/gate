@@ -56,6 +56,14 @@ function(hunter_gate_do_download)
       "[hunter] Hunter not found, start download to '${HUNTER_ROOT}' ..."
   )
 
+  if(NOT PROJECT_BINARY_DIR)
+    message(
+        FATAL_ERROR
+        "PROJECT_BINARY_DIR is empty. "
+        "Move HunterGate file **after** first project command"
+    )
+  endif()
+
   configure_file(
       "${CMAKE_CURRENT_LIST_DIR}/HunterDownload.cmake.in"
       "${PROJECT_BINARY_DIR}/Hunter-prefix/CMakeLists.txt"
