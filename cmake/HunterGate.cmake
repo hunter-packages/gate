@@ -121,7 +121,7 @@ if(NOT IS_DIRECTORY "${HUNTER_ROOT}")
 endif()
 
 # at this point: HUNTER_ROOT exists and is directory
-file(GLOB_RECURSE _hunter_result "${HUNTER_ROOT}/*")
+file(GLOB _hunter_result "${HUNTER_ROOT}/*")
 list(LENGTH _hunter_result _hunter_result_len)
 if(_hunter_result_len EQUAL 0)
   # HUNTER_ROOT directory is empty, let's download it
