@@ -8,6 +8,7 @@ project(gate-usage-example)
 #   * cmake variable
 #   * environment variable
 #   * in HOME (HunterPackages directory)
+#   * in PROGRAMFILES (HunterPackages directory, windows only)
 #   * in current source dir (HunterPackages directory)
 # 2. if failed, download it
 # 3. set HUNTER_ROOT to point to result directory

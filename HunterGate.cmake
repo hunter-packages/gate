@@ -50,6 +50,20 @@ function(hunter_gate_detect_root)
     return()
   endif()
 
+  # Check PROGRAMFILES environment variable (windows only)
+  if(WIN32)
+    string(COMPARE NOTEQUAL "$ENV{PROGRAMFILES}" "" result)
+    if(result)
+      set(HUNTER_ROOT "$ENV{PROGRAMFILES}/HunterPackages" PARENT_SCOPE)
+      set(
+          HUNTER_ROOT_INFO
+          "HUNTER_ROOT set using PROGRAMFILES environment variable"
+          PARENT_SCOPE
+      )
+      return()
+    endif()
+  endif()
+
   # Create in project
   if(NOT PROJECT_SOURCE_DIR)
      message(FATAL_ERROR "PROJECT_SOURCE_DIR is empty")
