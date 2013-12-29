@@ -10,10 +10,11 @@ project(gate-usage-example)
 #   * in HOME (HunterPackages directory)
 #   * in PROGRAMFILES (HunterPackages directory, windows only)
 #   * in current source dir (HunterPackages directory)
-# 2. if failed, download it
-# 3. set HUNTER_ROOT to point to result directory
-# 4. include master file: 'include(${HUNTER_ROOT}/Source/cmake/Hunter)
-# 5. include `hunter_add_package` module
+# 2. check version, if less than minimum, try auto-update
+# 3. if failed, download it
+# 4. set HUNTER_ROOT to point to result directory
+# 5. include master file: 'include(${HUNTER_ROOT}/Source/cmake/Hunter)
+# 6. include `hunter_add_package` module
 include("HunterGate.cmake")
 
 # now hunter can be used, like

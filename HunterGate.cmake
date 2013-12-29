@@ -143,6 +143,14 @@ function(hunter_gate_do_download)
     message(FATAL_ERROR "Build download project failed")
   endif()
 
+  execute_process(
+      COMMAND
+      "${CMAKE_COMMAND}"
+      -E
+      touch
+      "${HUNTER_ROOT}/installed.by.gate"
+  )
+
   message(STATUS "[hunter] downloaded to '${HUNTER_ROOT}'")
 endfunction()
 
@@ -197,6 +205,133 @@ if(NOT EXISTS "${HUNTER_ROOT}/Source/cmake/Hunter")
       "but '${HUNTER_ROOT}/Source/cmake/Hunter' file not found"
       "(${HUNTER_ROOT_INFO})"
   )
+endif()
+
+# check version
+if(NOT EXISTS "${HUNTER_ROOT}/Source/cmake/version.cmake")
+  message(
+      FATAL_ERROR
+      "HUNTER_ROOT directory exists (${HUNTER_ROOT})"
+      "but '${HUNTER_ROOT}/Source/cmake/version.cmake' file not found"
+      "(${HUNTER_ROOT_INFO})"
+  )
+endif()
+
+unset(HUNTER_VERSION)
+include("${HUNTER_ROOT}/Source/cmake/version.cmake")
+if(NOT HUNTER_VERSION)
+  message(
+      FATAL_ERROR
+      "Internal error: HUNTER_VERSION is not set in `version.cmake`"
+  )
+endif()
+
+if(HUNTER_VERSION VERSION_LESS HUNTER_MINIMUM_VERSION)
+  message(
+      "Current version is ${HUNTER_VERSION}. "
+      "Minimum version is ${HUNTER_MINIMUM_VERSION}. "
+      "Try autoupdate..."
+  )
+
+  if(NOT EXISTS "${HUNTER_ROOT}/installed.by.gate")
+    message(
+        FATAL_ERROR
+        "Please update version manually or remove directory `${HUNTER_ROOT}`."
+    )
+  endif()
+
+  if(EXISTS "${HUNTER_ROOT}/Source/.git")
+    message(
+        FATAL_ERROR
+        "Internal error: `installed.by.gate` and `.git`"
+    )
+  endif()
+  # File `${HUNTER_ROOT}/installed.by.gate` exists, hence current version
+  # installed by older gate file and can be auto-updated by current gate
+  if(NOT EXISTS "${HUNTER_ROOT}/Source/scripts/sleep.cmake")
+    message(FATAL_ERROR "Internal error: sleep.cmake not found")
+  endif()
+
+  set(_hunter_timeout 10)
+  message("")
+  message("***** AUTO UPDATE *****")
+  message("")
+  message("Directories:")
+  message("    * `${HUNTER_ROOT}/Base`")
+  message("    * `${HUNTER_ROOT}/Source`")
+  message("will be REMOVED")
+  message("")
+
+  foreach(x RANGE ${_hunter_timeout})
+    math(EXPR _hunter_output "(${_hunter_timeout}) - (${x})")
+    execute_process(
+        COMMAND
+        "${CMAKE_COMMAND}"
+        -E
+        echo_append
+        "${_hunter_output} "
+    )
+    if(NOT _hunter_output EQUAL 0)
+      execute_process(
+          COMMAND
+          ${CMAKE_CTEST_COMMAND}
+          -S
+          "${HUNTER_ROOT}/Source/scripts/sleep.cmake"
+      )
+    endif()
+  endforeach()
+
+  # One more sanity check...
+  string(COMPARE EQUAL "${HUNTER_ROOT}" "" _hunter_root_is_empty)
+  if(_hunter_root_is_empty)
+    message(FATAL_ERROR "Internal error: HUNTER_ROOT is empty")
+  endif()
+
+  # Remove old version
+  if(EXISTS "${HUNTER_ROOT}/Base")
+    execute_process(
+        COMMAND
+        "${CMAKE_COMMAND}"
+        -E
+        remove_directory
+        "${HUNTER_ROOT}/Base"
+    )
+  endif()
+  if(EXISTS "${HUNTER_ROOT}/Source")
+    execute_process(
+        COMMAND
+        "${CMAKE_COMMAND}"
+        -E
+        remove_directory
+        "${HUNTER_ROOT}/Source"
+    )
+  endif()
+
+  # Download new version
+  hunter_gate_do_download()
+
+  # Sanity check: master file exists
+  if(NOT EXISTS "${HUNTER_ROOT}/Source/cmake/Hunter")
+    message(FATAL_ERROR "Broken download: master file not found")
+  endif()
+
+  # Sanity check: version is not less than minimum
+  if(NOT EXISTS "${HUNTER_ROOT}/Source/cmake/version.cmake")
+    message(FATAL_ERROR "Broken download: version.cmake not found")
+  endif()
+
+  unset(HUNTER_VERSION)
+  include("${HUNTER_ROOT}/Source/cmake/version.cmake")
+  if(NOT HUNTER_VERSION)
+    message(
+        FATAL_ERROR
+        "Internal error: HUNTER_VERSION is not set in `version.cmake`"
+    )
+  endif()
+
+  if(HUNTER_VERSION VERSION_LESS HUNTER_MINIMUM_VERSION)
+    message(FATAL_ERROR "Broken download: version is less than minimum")
+  endif()
 endif()
 
 # HUNTER_ROOT found or downloaded if not exists, i.e. can be used now
