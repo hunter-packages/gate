@@ -10,8 +10,8 @@ if(root_is_empty)
   message(FATAL_ERROR "HUNTER_ROOT is empty")
 endif()
 
-set(VERSION "v0.0.11")
-set(HASH 40eebf51c1d610bdb127e806c4eba0ebabb7148c)
+set(VERSION "v0.1.0")
+set(HASH 92576d39b925651a63ca356e0416b981ff795f26)
 
 ExternalProject_Add(
     Hunter
@@ -20,9 +20,9 @@ ExternalProject_Add(
     URL_HASH
     SHA1=${HASH}
     DOWNLOAD_DIR
-    "@HUNTER_ROOT@"
+    "@HUNTER_ROOT@/Download"
     SOURCE_DIR
-    "@HUNTER_ROOT@"
+    "@HUNTER_ROOT@/Source"
     CONFIGURE_COMMAND
     ""
     BUILD_COMMAND

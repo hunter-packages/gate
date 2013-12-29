@@ -137,16 +137,16 @@ if(_hunter_result_len EQUAL 0)
 endif()
 
 # at this point: HUNTER_ROOT exists and is not empty directory
-if(NOT EXISTS "${HUNTER_ROOT}/cmake/Hunter")
+if(NOT EXISTS "${HUNTER_ROOT}/Source/cmake/Hunter")
   message(
       FATAL_ERROR
       "HUNTER_ROOT directory exists (${HUNTER_ROOT})"
-      "but '${HUNTER_ROOT}/cmake/Hunter' file not found"
+      "but '${HUNTER_ROOT}/Source/cmake/Hunter' file not found"
       "(${HUNTER_ROOT_INFO})"
   )
 endif()
 
 # HUNTER_ROOT found or downloaded if not exists, i.e. can be used now
-include("${HUNTER_ROOT}/cmake/Hunter")
+include("${HUNTER_ROOT}/Source/cmake/Hunter")
 include(hunter_status_debug)
 hunter_status_debug("${HUNTER_ROOT_INFO}")
