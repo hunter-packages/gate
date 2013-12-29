@@ -21,6 +21,7 @@ This is a gate file to [hunter](https://github.com/ruslo/hunter) package manager
  * test directory `${HOME}/HunterPackages` (shared downloads and builds)
  * test directory `${PROGRAMFILES}/HunterPackages` (shared downloads and builds, windows only)
  * test directory `HunterPackages` in current project sources (**not** recommended: no share, local downloads and builds)
+* If detected version is less than minimum try autoupdate
 * If not detected - download it and set `HUNTER_ROOT` variable
 * Include hunter master file `include("${HUNTER_ROOT}/Source/cmake/Hunter")`
 * Include `hunter_add_package` module with corresponding function
