@@ -12,6 +12,7 @@ project(gate-usage-example)
 # 2. if failed, download it
 # 3. set HUNTER_ROOT to point to result directory
 # 4. include master file: 'include(${HUNTER_ROOT}/Source/cmake/Hunter)
+# 5. include `hunter_add_package` module
 include("HunterGate.cmake")
 
 # now hunter can be used, like

@@ -1,6 +1,17 @@
 # Copyright (c) 2013, Ruslan Baratov
 # All rights reserved.
 
+# This is a gate file to Hunter package manager.
+# Usage: include this file using `include` command and add package you need:
+#
+#     include("HunterGate.cmake")
+#     hunter_add_package(Foo)
+#     hunter_add_package(Boo COMPONENTS Bar Baz)
+#
+# Projects:
+#     * https://github.com/hunter-packages/gate/
+#     * https://github.com/ruslo/hunter
+
 cmake_minimum_required(VERSION 2.8.10)
 
 set(HUNTER_MINIMUM_VERSION "0.1.0")
