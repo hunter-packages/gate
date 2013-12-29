@@ -9,10 +9,10 @@ project(gate-usage-example)
 #   * environment variable
 #   * in HOME (HunterPackages directory)
 #   * in current source dir (HunterPackages directory)
-# 2. if failed, download it using HunterDownload.cmake.in script
+# 2. if failed, download it
 # 3. set HUNTER_ROOT to point to result directory
 # 4. include master file: 'include(${HUNTER_ROOT}/cmake/Hunter)
-include("cmake/HunterGate.cmake")
+include("HunterGate.cmake")
 
 # now hunter can be used, like
 include(hunter_add_package)
