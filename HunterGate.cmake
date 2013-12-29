@@ -141,6 +141,9 @@ if(NOT HUNTER_ROOT)
   )
 endif()
 
+# Beautify path, fix probable problems with windows path slashes
+get_filename_component(HUNTER_ROOT "${HUNTER_ROOT}" ABSOLUTE)
+
 if(NOT EXISTS "${HUNTER_ROOT}")
   hunter_gate_do_download()
   if(NOT EXISTS "${HUNTER_ROOT}")
@@ -168,6 +171,9 @@ if(_hunter_result_len EQUAL 0)
   # HUNTER_ROOT directory is empty, let's download it
   hunter_gate_do_download()
 endif()
+
+unset(_hunter_result)
+unset(_hunter_result_len)
 
 # at this point: HUNTER_ROOT exists and is not empty directory
 if(NOT EXISTS "${HUNTER_ROOT}/Source/cmake/Hunter")
