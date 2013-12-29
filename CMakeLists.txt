@@ -11,11 +11,10 @@ project(gate-usage-example)
 #   * in current source dir (HunterPackages directory)
 # 2. if failed, download it
 # 3. set HUNTER_ROOT to point to result directory
-# 4. include master file: 'include(${HUNTER_ROOT}/cmake/Hunter)
+# 4. include master file: 'include(${HUNTER_ROOT}/Source/cmake/Hunter)
 include("HunterGate.cmake")
 
 # now hunter can be used, like
-include(hunter_add_package)
 hunter_add_package(Sugar)
 
 # add downloaded package to project

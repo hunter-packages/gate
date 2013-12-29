@@ -11,8 +11,8 @@ This is a gate file to [hunter](https://github.com/ruslo/hunter) package manager
 
 ## Usage
 
-* copy two files to project: `cmake/{HunterGate.cmake, HunterDownload.cmake.in}`
-* include gate file: `include("cmake/HunterGate.cmake")`
+* copy file `HunterGate.cmake` to project
+* include gate file: `include("HunterGate.cmake")`
 
 ## Effects
 * Try to detect `hunter`:
@@ -20,8 +20,9 @@ This is a gate file to [hunter](https://github.com/ruslo/hunter) package manager
  * test environment variable `HUNTER_ROOT` (**recommended**: control, shared downloads and builds)
  * test directory `${HOME}/HunterPackages` (shared downloads and builds)
  * test directory `HunterPackages` in current project sources (**not** recommended: no share, local downloads and builds)
-* If not detected - download it using `HunterDownload.cmake.in` script and set `HUNTER_ROOT` variable
-* Include hunter master file: `include("${HUNTER_ROOT}/cmake/Hunter")`
+* If not detected - download it and set `HUNTER_ROOT` variable
+* Include hunter master file `include("${HUNTER_ROOT}/Source/cmake/Hunter")`
+* Include `hunter_add_package` module with corresponding function
 
 On success this message will be printed:
 ```

@@ -170,5 +170,8 @@ endif()
 
 # HUNTER_ROOT found or downloaded if not exists, i.e. can be used now
 include("${HUNTER_ROOT}/Source/cmake/Hunter")
+
 include(hunter_status_debug)
 hunter_status_debug("${HUNTER_ROOT_INFO}")
+
+include(hunter_add_package)
