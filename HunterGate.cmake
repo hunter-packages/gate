@@ -274,7 +274,7 @@ if(HUNTER_VERSION VERSION_LESS HUNTER_MINIMUM_VERSION)
     if(NOT _hunter_output EQUAL 0)
       execute_process(
           COMMAND
-          ${CMAKE_CTEST_COMMAND}
+          "${CMAKE_CTEST_COMMAND}"
           -S
           "${HUNTER_ROOT}/Source/scripts/sleep.cmake"
       )
