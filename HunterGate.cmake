@@ -14,8 +14,8 @@
 
 cmake_minimum_required(VERSION 2.8.10)
 
-set(HUNTER_MINIMUM_VERSION "0.2.2")
-set(HUNTER_MINIMUM_VERSION_HASH 2d538ede36c2cf24c526a5d4c452209faa89d536)
+set(HUNTER_MINIMUM_VERSION "0.2.3")
+set(HUNTER_MINIMUM_VERSION_HASH 4b8f3dff884f02b8ade014cf61ba46b494802fc4)
 
 # Set HUNTER_ROOT cmake variable to suitable value.
 # Info about variable can be found in HUNTER_ROOT_INFO.
