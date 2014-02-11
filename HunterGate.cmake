@@ -1,4 +1,4 @@
-# Copyright (c) 2013, Ruslan Baratov
+# Copyright (c) 2013-2014, Ruslan Baratov
 # All rights reserved.
 
 # This is a gate file to Hunter package manager.
@@ -14,8 +14,8 @@
 
 cmake_minimum_required(VERSION 2.8.10)
 
-set(HUNTER_MINIMUM_VERSION "0.2.7")
-set(HUNTER_MINIMUM_VERSION_HASH ba3e908524dd7716d00149ded48f93e9b2d66091)
+set(HUNTER_MINIMUM_VERSION "0.2.8")
+set(HUNTER_MINIMUM_VERSION_HASH 96860d345e718433a07073d07b450ce32a681bc4)
 
 # Set HUNTER_ROOT cmake variable to suitable value.
 # Info about variable can be found in HUNTER_ROOT_INFO.
