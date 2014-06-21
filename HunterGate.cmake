@@ -226,6 +226,7 @@ if(NOT HUNTER_VERSION)
   message(
       FATAL_ERROR
       "Internal error: HUNTER_VERSION is not set in `version.cmake`"
+      " (${HUNTER_ROOT_INFO})"
   )
 endif()
 
@@ -240,6 +241,8 @@ if(HUNTER_VERSION VERSION_LESS HUNTER_MINIMUM_VERSION)
     message(
         FATAL_ERROR
         "Please update version manually or remove directory `${HUNTER_ROOT}`."
+        " Version read from file `${HUNTER_ROOT}/Source/cmake/version.cmake`."
+        " (${HUNTER_ROOT_INFO})"
     )
   endif()
 
@@ -247,6 +250,7 @@ if(HUNTER_VERSION VERSION_LESS HUNTER_MINIMUM_VERSION)
     message(
         FATAL_ERROR
         "Internal error: `installed.by.gate` and `.git`"
+        " (${HUNTER_ROOT_INFO})"
     )
   endif()
   # File `${HUNTER_ROOT}/installed.by.gate` exists, hence current version
