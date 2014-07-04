@@ -1,4 +1,4 @@
-# Copyright (c) 2013, Ruslan Baratov
+# Copyright (c) 2013-2014, Ruslan Baratov
 # All rights reserved.
 
 cmake_minimum_required(VERSION 2.8.10)
@@ -15,7 +15,7 @@ project(gate-usage-example)
 # 4. set HUNTER_ROOT to point to result directory
 # 5. include master file: 'include(${HUNTER_ROOT}/Source/cmake/Hunter)
 # 6. include `hunter_add_package` module
-include(HunterGate.cmake)
+include("cmake/HunterGate.cmake")
 
 # now hunter can be used, like
 hunter_add_package(Sugar)
