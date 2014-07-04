@@ -50,3 +50,7 @@ On success this message will be printed:
 * [This](https://github.com/hunter-packages/gate/blob/master/CMakeLists.txt)
 * [Simple](https://github.com/forexample/hunter-simple)
 * [Weather](https://github.com/ruslo/weather)
+
+## Links
+* [Hunter](https://github.com/ruslo/hunter)
+* [Some packages](https://github.com/ruslo/hunter/wiki/Packages)
