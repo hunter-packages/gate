@@ -22,9 +22,9 @@ endmacro()
 # 01.
 # Customizable --
 hunter_minimum_required(
-    VERSION "0.4.1"
-    URL "https://github.com/ruslo/hunter/archive/v0.4.1.tar.gz"
-    SHA1 "f46f105449f6c78e729f866237038b70d03ebcc8"
+    VERSION "0.4.2"
+    URL "https://github.com/ruslo/hunter/archive/v0.4.2.tar.gz"
+    SHA1 "e3f3d7d4f23f2c09a9df47d5ffa41b4fcc691fb3"
 )
 # -- end
 
