@@ -4,7 +4,7 @@
 # This is a gate file to Hunter package manager.
 # Usage: include this file using `include` command and add package you need:
 #
-#     include("HunterGate.cmake")
+#     include("cmake/HunterGate.cmake")
 #     hunter_add_package(Foo)
 #     hunter_add_package(Boo COMPONENTS Bar Baz)
 #
