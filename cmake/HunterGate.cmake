@@ -16,6 +16,7 @@ cmake_minimum_required(VERSION 2.8.10)
 
 set(HUNTER_MINIMUM_VERSION "0.4.1")
 set(HUNTER_MINIMUM_VERSION_HASH f46f105449f6c78e729f866237038b70d03ebcc8)
+set(HUNTER_URL "https://github.com/ruslo/hunter/archive/v0.4.1.tar.gz")
 
 # Set HUNTER_ROOT cmake variable to suitable value.
 # Info about variable can be found in HUNTER_ROOT_INFO.
@@ -95,7 +96,6 @@ function(hunter_gate_do_download)
   set(TEMP_DIR "${PROJECT_BINARY_DIR}/Hunter-activity/gate")
   set(TEMP_BUILD "${TEMP_DIR}/_builds")
 
-  set(URL_BASE "https://github.com/ruslo/hunter/archive")
   file(
       WRITE
       "${TEMP_DIR}/CMakeLists.txt"
@@ -104,7 +104,7 @@ function(hunter_gate_do_download)
       "ExternalProject_Add(\n"
       "    Hunter\n"
       "    URL\n"
-      "    \"${URL_BASE}/v${HUNTER_MINIMUM_VERSION}.tar.gz\"\n"
+      "    \"${HUNTER_URL}\"\n"
       "    URL_HASH\n"
       "    SHA1=${HUNTER_MINIMUM_VERSION_HASH}\n"
       "    DOWNLOAD_DIR\n"
