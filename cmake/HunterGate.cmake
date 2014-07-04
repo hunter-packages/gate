@@ -102,7 +102,7 @@ function(hunter_gate_do_download)
     )
   endif()
 
-  set(TEMP_DIR "${PROJECT_BINARY_DIR}/Hunter-activity/gate")
+  set(TEMP_DIR "${PROJECT_BINARY_DIR}/_3rdParty/gate")
   set(TEMP_BUILD "${TEMP_DIR}/_builds")
 
   file(
