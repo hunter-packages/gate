@@ -13,10 +13,19 @@
 #     * https://github.com/ruslo/hunter
 
 cmake_minimum_required(VERSION 2.8.10)
+include(CMakeParseArguments)
 
-set(HUNTER_MINIMUM_VERSION "0.4.1")
-set(HUNTER_MINIMUM_URL "https://github.com/ruslo/hunter/archive/v0.4.1.tar.gz")
-set(HUNTER_MINIMUM_SHA1 f46f105449f6c78e729f866237038b70d03ebcc8)
+macro(hunter_minimum_required)
+  cmake_parse_arguments(HUNTER_MINIMUM "" "VERSION;URL;SHA1" "" ${ARGV})
+endmacro()
+
+# Customizable --
+hunter_minimum_required(
+    VERSION "0.4.1"
+    URL "https://github.com/ruslo/hunter/archive/v0.4.1.tar.gz"
+    SHA1 "f46f105449f6c78e729f866237038b70d03ebcc8"
+)
+# -- end
 
 # Set HUNTER_ROOT cmake variable to suitable value.
 # Info about variable can be found in HUNTER_ROOT_INFO.
