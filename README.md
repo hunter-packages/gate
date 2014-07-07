@@ -13,11 +13,11 @@ This is a gate file to [hunter](https://github.com/ruslo/hunter) package manager
 
 * Copy file `HunterGate.cmake` to project
 * Include gate file: `include("cmake/HunterGate.cmake")`
-* Put any valid [hunter](https://github.com/ruslo/hunter/releases) archive with sha1 hash:
+* Put any valid [hunter](https://github.com/ruslo/hunter/releases) archive with `SHA1` hash:
 ```
 HunterGate(
-    URL "https://github.com/ruslo/hunter/archive/v0.4.1.tar.gz"
-    SHA1 "f46f105449f6c78e729f866237038b70d03ebcc8"
+    URL "https://github.com/ruslo/hunter/archive/v0.5.0.tar.gz"
+    SHA1 "8c9a553d3dbde74d411167ae67423416dd0e1a31"
 )
 ```
 
