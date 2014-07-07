@@ -5,6 +5,10 @@
 # Usage: include this file using `include` command and add package you need:
 #
 #     include("cmake/HunterGate.cmake")
+#     HunterGate(
+#         URL "https://github.com/path/to/hunter/archive.tar.gz"
+#         SHA1 "798501e983f14b28b10cda16afa4de69eee1da1d"
+#     )
 #     hunter_add_package(Foo)
 #     hunter_add_package(Boo COMPONENTS Bar Baz)
 #
@@ -14,23 +18,6 @@
 
 cmake_minimum_required(VERSION 2.8.10)
 include(CMakeParseArguments)
-
-macro(HunterGate)
-  cmake_parse_arguments(HUNTER "" "URL;SHA1" "" ${ARGV})
-  if(HUNTER_UNPARSED_ARGUMENTS)
-    message(FATAL_ERROR "HunterGate unparsed arguments")
-  endif()
-  set(HUNTER_URL "${HUNTER_URL}" CACHE STRING "Hunter archive URL")
-  set(HUNTER_SHA1 "${HUNTER_SHA1}" CACHE STRING "Hunter archive SHA1 hash")
-endmacro()
-
-# 01.
-# Customizable --
-HunterGate(
-    URL "https://github.com/ruslo/hunter/archive/multiversion-test-01.tar.gz"
-    SHA1 "798501e983f14b28b10cda16afa4de69eee1da1d"
-)
-# -- end
 
 # Set HUNTER_ROOT cmake variable to suitable value.
 # Info about variable can be found in HUNTER_ROOT_INFO.
@@ -167,40 +154,59 @@ function(hunter_gate_do_download)
   message(STATUS "[hunter] downloaded to '${HUNTER_BASE}'")
 endfunction()
 
-# 02.
-hunter_gate_detect_root() # set HUNTER_ROOT and HUNTER_ROOT_INFO
+macro(HunterGate)
+  cmake_parse_arguments(HUNTER "" "URL;SHA1" "" ${ARGV})
+  if(HUNTER_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "HunterGate unparsed arguments")
+  endif()
 
-# 03.
-if(NOT HUNTER_ROOT)
-  message(FATAL_ERROR "Internal error: HUNTER_ROOT is not set")
-endif()
+  hunter_gate_detect_root() # set HUNTER_ROOT and HUNTER_ROOT_INFO
 
-set(HUNTER_BASE "${HUNTER_ROOT}/_Base/${HUNTER_SHA1}")
+  if(NOT HUNTER_ROOT)
+    message(FATAL_ERROR "Internal error: HUNTER_ROOT is not set")
+  endif()
 
-# Beautify path, fix probable problems with windows path slashes
-get_filename_component(HUNTER_ROOT "${HUNTER_ROOT}" ABSOLUTE)
-get_filename_component(HUNTER_BASE "${HUNTER_BASE}" ABSOLUTE)
+  # Beautify path, fix probable problems with windows path slashes
+  get_filename_component(HUNTER_ROOT "${HUNTER_ROOT}" ABSOLUTE)
 
-set(HUNTER_ROOT "${HUNTER_ROOT}" CACHE PATH "Hunter root directory")
-set(HUNTER_BASE "${HUNTER_BASE}" CACHE PATH "Hunter base directory")
+  if(EXISTS "${HUNTER_ROOT}/cmake/Hunter")
+    # hunter installed manually
+    set(HUNTER_SHA1 "")
+    set(HUNTER_URL "")
+    set(HUNTER_BASE "${HUNTER_ROOT}")
+    set(HUNTER_SELF "${HUNTER_ROOT}")
+  else()
+    set(HUNTER_BASE "${HUNTER_ROOT}/_Base/${HUNTER_SHA1}")
+    set(HUNTER_SELF "${HUNTER_BASE}/Self")
+  endif()
 
-if(NOT EXISTS "${HUNTER_BASE}")
-  # 04.
-  hunter_gate_do_download()
-endif()
+  set(HUNTER_URL "${HUNTER_URL}" CACHE STRING "Hunter archive URL")
+  set(HUNTER_SHA1 "${HUNTER_SHA1}" CACHE STRING "Hunter archive SHA1 hash")
 
-if(NOT EXISTS "${HUNTER_BASE}/Self/cmake/Hunter")
-  message(
-      FATAL_ERROR
-      "Internal error can't find master file in directory `${HUNTER_BASE}`"
-  )
-endif()
+  # Beautify path, fix probable problems with windows path slashes
+  get_filename_component(HUNTER_BASE "${HUNTER_BASE}" ABSOLUTE)
+  get_filename_component(HUNTER_SELF "${HUNTER_SELF}" ABSOLUTE)
 
-# 11.
-# HUNTER_BASE found or downloaded if not exists, i.e. can be used now
-include("${HUNTER_BASE}/Self/cmake/Hunter")
+  set(HUNTER_ROOT "${HUNTER_ROOT}" CACHE PATH "Hunter root directory")
+  set(HUNTER_BASE "${HUNTER_BASE}" CACHE PATH "Hunter base directory")
+  set(HUNTER_SELF "${HUNTER_SELF}" CACHE PATH "Hunter base directory")
 
-include(hunter_status_debug)
-hunter_status_debug("${HUNTER_ROOT_INFO}")
+  if(NOT EXISTS "${HUNTER_BASE}")
+    hunter_gate_do_download()
+  endif()
 
-include(hunter_add_package)
+  if(NOT EXISTS "${HUNTER_SELF}/cmake/Hunter")
+    message(
+        FATAL_ERROR
+        "Internal error can't find master file in directory `${HUNTER_BASE}`"
+    )
+  endif()
+
+  # HUNTER_BASE found or downloaded if not exists, i.e. can be used now
+  include("${HUNTER_SELF}/cmake/Hunter")
+
+  include(hunter_status_debug)
+  hunter_status_debug("${HUNTER_ROOT_INFO}")
+
+  include(hunter_add_package)
+endmacro()
