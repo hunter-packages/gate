@@ -155,14 +155,6 @@ function(hunter_gate_do_download)
     message(FATAL_ERROR "Build download project failed")
   endif()
 
-  execute_process(
-      COMMAND
-      "${CMAKE_COMMAND}"
-      -E
-      touch
-      "${HUNTER_ROOT}/installed.by.gate"
-  )
-
   message(STATUS "[hunter] downloaded to '${HUNTER_ROOT}'")
 endfunction()
 
