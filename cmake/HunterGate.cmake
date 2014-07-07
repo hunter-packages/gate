@@ -16,13 +16,12 @@ cmake_minimum_required(VERSION 2.8.10)
 include(CMakeParseArguments)
 
 macro(HunterGate)
-  cmake_parse_arguments(HUNTER_MINIMUM "" "VERSION;URL;SHA1" "" ${ARGV})
+  cmake_parse_arguments(HUNTER_MINIMUM "" "URL;SHA1" "" ${ARGV})
 endmacro()
 
 # 01.
 # Customizable --
 HunterGate(
-    VERSION "0.4.2"
     URL "https://github.com/ruslo/hunter/archive/v0.4.2.tar.gz"
     SHA1 "3a6c66670dc4103ff2567c03d44b2a99e288e3c8"
 )
