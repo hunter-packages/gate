@@ -219,92 +219,6 @@ function(hunter_gate_detect_version)
   set(HUNTER_VERSION ${HUNTER_VERSION} PARENT_SCOPE)
 endfunction()
 
-# Try to remove directories for autoupdate:
-# * ${HUNTER_ROOT}/Base
-# * ${HUNTER_ROOT}/Source
-function(hunter_gate_remove_old_version)
-  if(NOT HUNTER_ROOT)
-    message(FATAL_ERROR "Internal error")
-  endif()
-
-  if(NOT EXISTS "${HUNTER_ROOT}/installed.by.gate")
-    message(
-        FATAL_ERROR
-        "Please update version manually or remove directory `${HUNTER_ROOT}`."
-        " Version read from file `${HUNTER_ROOT}/Source/cmake/version.cmake`."
-        " (${HUNTER_ROOT_INFO})"
-    )
-  endif()
-
-  if(EXISTS "${HUNTER_ROOT}/Source/.git")
-    message(
-        FATAL_ERROR
-        "Internal error: `installed.by.gate` and `.git`"
-        " (${HUNTER_ROOT_INFO})"
-    )
-  endif()
-  # File `${HUNTER_ROOT}/installed.by.gate` exists, hence current version
-  # installed by older gate file and can be auto-updated by current gate
-  if(NOT EXISTS "${HUNTER_ROOT}/Source/scripts/sleep.cmake")
-    message(FATAL_ERROR "Internal error: sleep.cmake not found")
-  endif()
-
-  set(_hunter_timeout 10)
-  message("")
-  message("***** AUTO UPDATE *****")
-  message("")
-  message("Directories:")
-  message("    * `${HUNTER_ROOT}/Base`")
-  message("    * `${HUNTER_ROOT}/Source`")
-  message("will be REMOVED")
-  message("")
-
-  foreach(x RANGE ${_hunter_timeout})
-    math(EXPR _hunter_output "(${_hunter_timeout}) - (${x})")
-    execute_process(
-        COMMAND
-        "${CMAKE_COMMAND}"
-        -E
-        echo_append
-        "${_hunter_output} "
-    )
-    if(NOT _hunter_output EQUAL 0)
-      execute_process(
-          COMMAND
-          "${CMAKE_CTEST_COMMAND}"
-          -S
-          "${HUNTER_ROOT}/Source/scripts/sleep.cmake"
-      )
-    endif()
-  endforeach()
-
-  # One more sanity check...
-  string(COMPARE EQUAL "${HUNTER_ROOT}" "" _hunter_root_is_empty)
-  if(_hunter_root_is_empty)
-    message(FATAL_ERROR "Internal error: HUNTER_ROOT is empty")
-  endif()
-
-  # Remove old version
-  if(EXISTS "${HUNTER_ROOT}/Base")
-    execute_process(
-        COMMAND
-        "${CMAKE_COMMAND}"
-        -E
-        remove_directory
-        "${HUNTER_ROOT}/Base"
-    )
-  endif()
-  if(EXISTS "${HUNTER_ROOT}/Source")
-    execute_process(
-        COMMAND
-        "${CMAKE_COMMAND}"
-        -E
-        remove_directory
-        "${HUNTER_ROOT}/Source"
-    )
-  endif()
-endfunction()
-
 # 02.
 hunter_gate_detect_root() # set HUNTER_ROOT and HUNTER_ROOT_INFO
 
@@ -363,9 +277,6 @@ if(HUNTER_VERSION VERSION_LESS HUNTER_MINIMUM_VERSION)
       "Minimum version is ${HUNTER_MINIMUM_VERSION}. "
       "Try autoupdate..."
   )
-
-  # 08.
-  hunter_gate_remove_old_version()
 
   # 09.
   hunter_gate_do_download()
