@@ -189,7 +189,7 @@ macro(HunterGate)
 
   set(HUNTER_ROOT "${HUNTER_ROOT}" CACHE PATH "Hunter root directory")
   set(HUNTER_BASE "${HUNTER_BASE}" CACHE PATH "Hunter base directory")
-  set(HUNTER_SELF "${HUNTER_SELF}" CACHE PATH "Hunter base directory")
+  set(HUNTER_SELF "${HUNTER_SELF}" CACHE PATH "Hunter self directory")
 
   if(NOT EXISTS "${HUNTER_BASE}")
     hunter_gate_do_download()
