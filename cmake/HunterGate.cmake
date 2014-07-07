@@ -16,14 +16,19 @@ cmake_minimum_required(VERSION 2.8.10)
 include(CMakeParseArguments)
 
 macro(HunterGate)
-  cmake_parse_arguments(HUNTER_MINIMUM "" "URL;SHA1" "" ${ARGV})
+  cmake_parse_arguments(HUNTER "" "URL;SHA1" "" ${ARGV})
+  if(HUNTER_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "HunterGate unparsed arguments")
+  endif()
+  set(HUNTER_URL "${HUNTER_URL}" CACHE STRING "Hunter archive URL")
+  set(HUNTER_SHA1 "${HUNTER_SHA1}" CACHE STRING "Hunter archive SHA1 hash")
 endmacro()
 
 # 01.
 # Customizable --
 HunterGate(
-    URL "https://github.com/ruslo/hunter/archive/v0.4.2.tar.gz"
-    SHA1 "3a6c66670dc4103ff2567c03d44b2a99e288e3c8"
+    URL "https://github.com/ruslo/hunter/archive/multiversion-test-01.tar.gz"
+    SHA1 "798501e983f14b28b10cda16afa4de69eee1da1d"
 )
 # -- end
 
@@ -89,9 +94,13 @@ endfunction()
 
 # Download project to HUNTER_ROOT
 function(hunter_gate_do_download)
+  if(NOT HUNTER_BASE)
+    message(FATAL_ERROR "Internal error (HUNTER_BASE empty)")
+  endif()
+
   message(
       STATUS
-      "[hunter] Hunter not found, start download to '${HUNTER_ROOT}' ..."
+      "[hunter] Hunter not found, start download to '${HUNTER_BASE}' ..."
   )
 
   if(NOT PROJECT_BINARY_DIR)
@@ -113,13 +122,13 @@ function(hunter_gate_do_download)
       "ExternalProject_Add(\n"
       "    Hunter\n"
       "    URL\n"
-      "    \"${HUNTER_MINIMUM_URL}\"\n"
+      "    \"${HUNTER_URL}\"\n"
       "    URL_HASH\n"
-      "    SHA1=${HUNTER_MINIMUM_SHA1}\n"
+      "    SHA1=${HUNTER_SHA1}\n"
       "    DOWNLOAD_DIR\n"
-      "    \"${HUNTER_ROOT}/Download\"\n"
+      "    \"${HUNTER_BASE}/Download\"\n"
       "    SOURCE_DIR\n"
-      "    \"${HUNTER_ROOT}/Source\"\n"
+      "    \"${HUNTER_BASE}/Self\"\n"
       "    CONFIGURE_COMMAND\n"
       "    \"\"\n"
       "    BUILD_COMMAND\n"
@@ -155,7 +164,7 @@ function(hunter_gate_do_download)
     message(FATAL_ERROR "Build download project failed")
   endif()
 
-  message(STATUS "[hunter] downloaded to '${HUNTER_ROOT}'")
+  message(STATUS "[hunter] downloaded to '${HUNTER_BASE}'")
 endfunction()
 
 # 02.
@@ -163,57 +172,35 @@ hunter_gate_detect_root() # set HUNTER_ROOT and HUNTER_ROOT_INFO
 
 # 03.
 if(NOT HUNTER_ROOT)
-  message(
-      FATAL_ERROR
-      "Internal error in 'hunter_gate_detect_root': HUNTER_ROOT is not set"
-  )
+  message(FATAL_ERROR "Internal error: HUNTER_ROOT is not set")
 endif()
+
+set(HUNTER_BASE "${HUNTER_ROOT}/_Base/${HUNTER_SHA1}")
 
 # Beautify path, fix probable problems with windows path slashes
 get_filename_component(HUNTER_ROOT "${HUNTER_ROOT}" ABSOLUTE)
+get_filename_component(HUNTER_BASE "${HUNTER_BASE}" ABSOLUTE)
 
-if(NOT EXISTS "${HUNTER_ROOT}")
+set(HUNTER_ROOT "${HUNTER_ROOT}" CACHE PATH "Hunter root directory")
+set(HUNTER_BASE "${HUNTER_BASE}" CACHE PATH "Hunter base directory")
+
+if(NOT EXISTS "${HUNTER_BASE}")
   # 04.
   hunter_gate_do_download()
-  if(NOT EXISTS "${HUNTER_ROOT}")
-    message(
-        FATAL_ERROR
-        "Internal error in 'hunter_gate_do_download': "
-        "directory HUNTER_ROOT not found"
-    )
-  endif()
 endif()
 
-# 05.
-
-# at this point: HUNTER_ROOT exists (is file or directory)
-if(NOT IS_DIRECTORY "${HUNTER_ROOT}")
+if(NOT EXISTS "${HUNTER_BASE}/Self/cmake/Hunter")
   message(
       FATAL_ERROR
-      "HUNTER_ROOT is not directory (${HUNTER_ROOT})"
-      "(${HUNTER_ROOT_INFO})"
+      "Internal error can't find master file in directory `${HUNTER_BASE}`"
   )
 endif()
 
-# at this point: HUNTER_ROOT exists and is directory
-file(GLOB _hunter_result "${HUNTER_ROOT}/*")
-list(LENGTH _hunter_result _hunter_result_len)
-if(_hunter_result_len EQUAL 0)
-  # 06.
-  # HUNTER_ROOT directory is empty, let's download it
-  hunter_gate_do_download()
-endif()
-
-unset(_hunter_result)
-unset(_hunter_result_len)
-
 # 11.
-# HUNTER_ROOT found or downloaded if not exists, i.e. can be used now
-include("${HUNTER_ROOT}/Source/cmake/Hunter")
+# HUNTER_BASE found or downloaded if not exists, i.e. can be used now
+include("${HUNTER_BASE}/Self/cmake/Hunter")
 
 include(hunter_status_debug)
-hunter_status_debug(
-    "${HUNTER_ROOT_INFO}"
-)
+hunter_status_debug("${HUNTER_ROOT_INFO}")
 
 include(hunter_add_package)
