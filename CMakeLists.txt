@@ -1,7 +1,7 @@
 # Copyright (c) 2013-2014, Ruslan Baratov
 # All rights reserved.
 
-cmake_minimum_required(VERSION 2.8.10)
+cmake_minimum_required(VERSION 3.0)
 project(gate-usage-example)
 
 include("cmake/HunterGate.cmake")
@@ -12,14 +12,13 @@ include("cmake/HunterGate.cmake")
 #   * in HOME (HunterPackages directory)
 #   * in PROGRAMFILES (HunterPackages directory, windows only)
 #   * in current source dir (HunterPackages directory)
-# 2. check version, if less than minimum, try auto-update
-# 3. if failed, download it
-# 4. set HUNTER_ROOT to point to result directory
-# 5. include master file: 'include(${HUNTER_ROOT}/Source/cmake/Hunter)
-# 6. include `hunter_add_package` module
+# 2. if failed, download it
+# 3. set HUNTER_ROOT, HUNTER_BASE, HUNTER_SELF to point to result directory
+# 4. include master file: 'include(${HUNTER_SELF}/cmake/Hunter)
+# 5. include `hunter_add_package` module
 HunterGate(
-    URL "https://github.com/ruslo/hunter/archive/multiversion-test-01.tar.gz"
-    SHA1 "798501e983f14b28b10cda16afa4de69eee1da1d"
+    URL "https://github.com/ruslo/hunter/archive/v0.5.0.tar.gz"
+    SHA1 "8c9a553d3dbde74d411167ae67423416dd0e1a31"
 )
 
 # now hunter can be used, like
