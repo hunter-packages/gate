@@ -155,9 +155,12 @@ function(hunter_gate_do_download)
 endfunction()
 
 macro(HunterGate)
-  cmake_parse_arguments(HUNTER "" "URL;SHA1" "" ${ARGV})
-  if(HUNTER_UNPARSED_ARGUMENTS)
-    message(FATAL_ERROR "HunterGate unparsed arguments")
+  # HUNTER_SHA1 may already be defined by other project
+  if(NOT HUNTER_SHA1)
+    cmake_parse_arguments(HUNTER "" "URL;SHA1" "" ${ARGV})
+    if(HUNTER_UNPARSED_ARGUMENTS)
+      message(FATAL_ERROR "HunterGate unparsed arguments")
+    endif()
   endif()
 
   hunter_gate_detect_root() # set HUNTER_ROOT and HUNTER_ROOT_INFO
