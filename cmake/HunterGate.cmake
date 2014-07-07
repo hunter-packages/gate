@@ -167,58 +167,6 @@ function(hunter_gate_do_download)
   message(STATUS "[hunter] downloaded to '${HUNTER_ROOT}'")
 endfunction()
 
-# Get HUNTER_VERSION from ${HUNTER_ROOT}/Source/cmake/version.cmake
-# Preconditions: ${HUNTER_ROOT} is defined and is a directory
-function(hunter_gate_detect_version)
-  if(NOT HUNTER_ROOT)
-    message(FATAL_ERROR "Internal error")
-  endif()
-
-  if(NOT EXISTS "${HUNTER_ROOT}")
-    message(FATAL_ERROR "Internal error")
-  endif()
-
-  if(NOT IS_DIRECTORY "${HUNTER_ROOT}")
-    message(FATAL_ERROR "Internal error")
-  endif()
-
-  # check master (valid directory?)
-  if(NOT EXISTS "${HUNTER_ROOT}/Source/cmake/Hunter")
-    message(
-        FATAL_ERROR
-        "HUNTER_ROOT directory exists (${HUNTER_ROOT})"
-        "but '${HUNTER_ROOT}/Source/cmake/Hunter' file not found"
-        "(${HUNTER_ROOT_INFO})"
-    )
-  endif()
-
-  # check version
-  if(NOT EXISTS "${HUNTER_ROOT}/Source/cmake/version.cmake")
-    message(
-        FATAL_ERROR
-        "HUNTER_ROOT directory exists (${HUNTER_ROOT})"
-        "but '${HUNTER_ROOT}/Source/cmake/version.cmake' file not found"
-        "(${HUNTER_ROOT_INFO})"
-    )
-  endif()
-
-  unset(HUNTER_VERSION)
-  if(HUNTER_VERSION)
-    message(FATAL_ERROR "Internal error (HUNTER_VERSION in cache)")
-  endif()
-
-  include("${HUNTER_ROOT}/Source/cmake/version.cmake")
-  if(NOT HUNTER_VERSION)
-    message(
-        FATAL_ERROR
-        "Internal error: HUNTER_VERSION is not set in `version.cmake`"
-        " (${HUNTER_ROOT_INFO})"
-    )
-  endif()
-
-  set(HUNTER_VERSION ${HUNTER_VERSION} PARENT_SCOPE)
-endfunction()
-
 # 02.
 hunter_gate_detect_root() # set HUNTER_ROOT and HUNTER_ROOT_INFO
 
@@ -268,9 +216,6 @@ endif()
 unset(_hunter_result)
 unset(_hunter_result_len)
 
-# 07.
-hunter_gate_detect_version()
-
 if(HUNTER_VERSION VERSION_LESS HUNTER_MINIMUM_VERSION)
   message(
       "Current version is ${HUNTER_VERSION}. "
@@ -280,9 +225,6 @@ if(HUNTER_VERSION VERSION_LESS HUNTER_MINIMUM_VERSION)
 
   # 09.
   hunter_gate_do_download()
-
-  # 10.
-  hunter_gate_detect_version()
 
   if(HUNTER_VERSION VERSION_LESS HUNTER_MINIMUM_VERSION)
     message(FATAL_ERROR "Broken download: version is less than minimum")
