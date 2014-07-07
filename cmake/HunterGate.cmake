@@ -216,21 +216,6 @@ endif()
 unset(_hunter_result)
 unset(_hunter_result_len)
 
-if(HUNTER_VERSION VERSION_LESS HUNTER_MINIMUM_VERSION)
-  message(
-      "Current version is ${HUNTER_VERSION}. "
-      "Minimum version is ${HUNTER_MINIMUM_VERSION}. "
-      "Try autoupdate..."
-  )
-
-  # 09.
-  hunter_gate_do_download()
-
-  if(HUNTER_VERSION VERSION_LESS HUNTER_MINIMUM_VERSION)
-    message(FATAL_ERROR "Broken download: version is less than minimum")
-  endif()
-endif()
-
 # 11.
 # HUNTER_ROOT found or downloaded if not exists, i.e. can be used now
 include("${HUNTER_ROOT}/Source/cmake/Hunter")
@@ -238,7 +223,6 @@ include("${HUNTER_ROOT}/Source/cmake/Hunter")
 include(hunter_status_debug)
 hunter_status_debug(
     "${HUNTER_ROOT_INFO}"
-    "(ver.: ${HUNTER_VERSION} minimum: ${HUNTER_MINIMUM_VERSION})"
 )
 
 include(hunter_add_package)
