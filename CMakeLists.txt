@@ -4,6 +4,8 @@
 cmake_minimum_required(VERSION 2.8.10)
 project(gate-usage-example)
 
+include("cmake/HunterGate.cmake")
+
 # 1. Try to detect hunter by:
 #   * cmake variable
 #   * environment variable
@@ -15,7 +17,10 @@ project(gate-usage-example)
 # 4. set HUNTER_ROOT to point to result directory
 # 5. include master file: 'include(${HUNTER_ROOT}/Source/cmake/Hunter)
 # 6. include `hunter_add_package` module
-include("cmake/HunterGate.cmake")
+HunterGate(
+    URL "https://github.com/ruslo/hunter/archive/multiversion-test-01.tar.gz"
+    SHA1 "798501e983f14b28b10cda16afa4de69eee1da1d"
+)
 
 # now hunter can be used, like
 hunter_add_package(Sugar)
