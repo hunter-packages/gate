@@ -125,13 +125,17 @@ function(hunter_gate_do_download)
       ")\n"
   )
 
+  # CMAKE_*_COMPILER_WORKS speed up a little bit
+  # and avoid path too long windows error
   execute_process(
       COMMAND
-      "${CMAKE_COMMAND}" "-H${TEMP_DIR}" "-B${TEMP_BUILD}"
-      WORKING_DIRECTORY
-      "${TEMP_DIR}"
-      RESULT_VARIABLE
-      HUNTER_DOWNLOAD_RESULT
+          "${CMAKE_COMMAND}"
+          "-H${TEMP_DIR}"
+          "-B${TEMP_BUILD}"
+          -DCMAKE_CXX_COMPILER_WORKS=ON
+          -DCMAKE_C_COMPILER_WORKS=ON
+      WORKING_DIRECTORY "${TEMP_DIR}"
+      RESULT_VARIABLE HUNTER_DOWNLOAD_RESULT
   )
 
   if(NOT HUNTER_DOWNLOAD_RESULT EQUAL 0)
