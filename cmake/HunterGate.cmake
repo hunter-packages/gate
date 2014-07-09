@@ -85,10 +85,9 @@ function(hunter_gate_do_download)
     message(FATAL_ERROR "Internal error (HUNTER_BASE empty)")
   endif()
 
-  message(
-      STATUS
-      "[hunter] Hunter not found, start download to '${HUNTER_BASE}' ..."
-  )
+  if(NOT HUNTER_GATE_INSTALL_DONE)
+    message(FATAL_ERROR "Internal error (HUNTER_GATE_INSTALL_DONE empty)")
+  endif()
 
   if(NOT PROJECT_BINARY_DIR)
     message(
@@ -100,6 +99,35 @@ function(hunter_gate_do_download)
 
   set(TEMP_DIR "${PROJECT_BINARY_DIR}/_3rdParty/gate")
   set(TEMP_BUILD "${TEMP_DIR}/_builds")
+  set(install_lock "${TEMP_DIR}/install.lock")
+  string(TIMESTAMP time_now)
+  set(
+      lock_info_written
+      "Install triggered from `${TEMP_DIR}` at ${time_now}. "
+      "If this build interrupted by user "
+      "please remove ${install_lock} file manually"
+  )
+
+  if(NOT EXISTS "${install_lock}")
+    # Install synchronization
+    file(WRITE "${install_lock}" "${lock_info_written}")
+  endif()
+
+  # Hope this helps (:
+  execute_process(COMMAND "${CMAKE_COMMAND}" -E sleep 2)
+
+  file(READ "${install_lock}" lock_info_read)
+  string(COMPARE EQUAL "${lock_info_written}" "${lock_info_read}" locked_by_us)
+
+  if(NOT locked_by_us)
+    # Return and wait until HUNTER_GATE_INSTALL_DONE created
+    return()
+  endif()
+
+  message(
+      STATUS
+      "[hunter] Hunter not found, start download to '${HUNTER_BASE}' ..."
+  )
 
   file(
       WRITE
@@ -155,6 +183,9 @@ function(hunter_gate_do_download)
     message(FATAL_ERROR "Build download project failed")
   endif()
 
+  file(REMOVE "${install_lock}")
+  file(WRITE "${HUNTER_GATE_INSTALL_DONE}" "done")
+
   message(STATUS "[hunter] downloaded to '${HUNTER_BASE}'")
 endfunction()
 
@@ -182,9 +213,11 @@ macro(HunterGate)
     set(HUNTER_URL "")
     set(HUNTER_BASE "${HUNTER_ROOT}")
     set(HUNTER_SELF "${HUNTER_ROOT}")
+    set(HUNTER_GATE_INSTALL_DONE "${HUNTER_SELF}")
   else()
     set(HUNTER_BASE "${HUNTER_ROOT}/_Base/${HUNTER_SHA1}")
     set(HUNTER_SELF "${HUNTER_BASE}/Self")
+    set(HUNTER_GATE_INSTALL_DONE "${HUNTER_SELF}/install-gate-done")
   endif()
 
   set(HUNTER_URL "${HUNTER_URL}" CACHE STRING "Hunter archive URL")
@@ -201,6 +234,19 @@ macro(HunterGate)
   if(NOT EXISTS "${HUNTER_BASE}")
     hunter_gate_do_download()
   endif()
+
+  while(NOT EXISTS "${HUNTER_GATE_INSTALL_DONE}")
+    string(TIMESTAMP time_now)
+    # Directory already created, but installation is not finished yet
+    execute_process(
+        COMMAND
+            "${CMAKE_COMMAND}"
+            -E
+            echo
+            "[${time_now}] Install already triggered, waiting..."
+    )
+    execute_process(COMMAND "${CMAKE_COMMAND}" -E sleep 1)
+  endwhile()
 
   if(NOT EXISTS "${HUNTER_SELF}/cmake/Hunter")
     message(
