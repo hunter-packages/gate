@@ -127,6 +127,7 @@ function(hunter_gate_do_download)
   message(
       STATUS
       "[hunter] Hunter not found, start download to '${HUNTER_BASE}' ..."
+      "${lock_info_written}"
   )
 
   file(
