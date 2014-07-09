@@ -99,7 +99,7 @@ function(hunter_gate_do_download)
 
   set(TEMP_DIR "${PROJECT_BINARY_DIR}/_3rdParty/gate")
   set(TEMP_BUILD "${TEMP_DIR}/_builds")
-  set(install_lock "${TEMP_DIR}/install.lock")
+  set(install_lock "${HUNTER_BASE}/install.lock")
   string(TIMESTAMP time_now)
   set(
       lock_info_written
@@ -214,11 +214,11 @@ macro(HunterGate)
     set(HUNTER_URL "")
     set(HUNTER_BASE "${HUNTER_ROOT}")
     set(HUNTER_SELF "${HUNTER_ROOT}")
-    set(HUNTER_GATE_INSTALL_DONE "${HUNTER_SELF}")
+    set(HUNTER_GATE_INSTALL_DONE "${HUNTER_BASE}")
   else()
     set(HUNTER_BASE "${HUNTER_ROOT}/_Base/${HUNTER_SHA1}")
     set(HUNTER_SELF "${HUNTER_BASE}/Self")
-    set(HUNTER_GATE_INSTALL_DONE "${HUNTER_SELF}/install-gate-done")
+    set(HUNTER_GATE_INSTALL_DONE "${HUNTER_BASE}/install-gate-done")
   endif()
 
   set(HUNTER_URL "${HUNTER_URL}" CACHE STRING "Hunter archive URL")
