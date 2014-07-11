@@ -79,14 +79,75 @@ function(hunter_gate_detect_root)
   )
 endfunction()
 
-# Download project to HUNTER_ROOT
+# If several processes simultaneously try to init base hunter directory
+# this synchronisation helps to do it correctly
+function(hunter_gate_try_lock result)
+  if(NOT HUNTER_LOCK_PATH)
+    message(FATAL_ERROR "Internal error (HUNTER_LOCK_PATH is empty)")
+  endif()
+
+  if(NOT HUNTER_LOCK_INFO)
+    message(FATAL_ERROR "Internal error (HUNTER_LOCK_INFO is empty)")
+  endif()
+
+  if(NOT HUNTER_LOCK_FULL_INFO)
+    message(FATAL_ERROR "Internal error (HUNTER_LOCK_FULL_INFO is empty)")
+  endif()
+
+  if(NOT PROJECT_BINARY_DIR)
+    message(FATAL_ERROR "Internal error (PROJECT_BINARY_DIR is empty)")
+  endif()
+
+  file(TO_NATIVE_PATH "${HUNTER_LOCK_PATH}" lock_path)
+
+  # `cmake -E make_directory` is not fit here because this command succeed
+  # even if directory already exists
+  if(WIN32)
+    execute_process(
+        COMMAND cmd /C mkdir "${lock_path}"
+        RESULT_VARIABLE lock_result
+        OUTPUT_QUIET
+        ERROR_QUIET
+    )
+  else()
+    execute_process(
+        COMMAND mkdir -p "${lock_path}"
+        RESULT_VARIABLE lock_result
+        OUTPUT_QUIET
+        ERROR_QUIET
+    )
+  endif()
+
+  if(NOT lock_result EQUAL 0)
+    set(${result} FALSE PARENT_SCOPE)
+    return()
+  endif()
+
+  file(WRITE "${HUNTER_LOCK_INFO}" "${PROJECT_BINARY_DIR}")
+
+  string(TIMESTAMP time_now)
+  file(
+      WRITE
+      "${HUNTER_LOCK_FULL_INFO}"
+      "    Project binary directory: ${PROJECT_BINARY_DIR}\n"
+      "    Build start at: ${time_now}"
+  )
+
+  set(${result} TRUE PARENT_SCOPE)
+endfunction()
+
+# Download project to HUNTER_BASE
 function(hunter_gate_do_download)
   if(NOT HUNTER_BASE)
-    message(FATAL_ERROR "Internal error (HUNTER_BASE empty)")
+    message(FATAL_ERROR "Internal error (HUNTER_BASE is empty)")
   endif()
 
   if(NOT HUNTER_GATE_INSTALL_DONE)
-    message(FATAL_ERROR "Internal error (HUNTER_GATE_INSTALL_DONE empty)")
+    message(FATAL_ERROR "Internal error (HUNTER_GATE_INSTALL_DONE is empty)")
+  endif()
+
+  if(NOT HUNTER_LOCK_PATH)
+    message(FATAL_ERROR "Internal error (HUNTER_LOCK_PATH is empty)")
   endif()
 
   if(NOT PROJECT_BINARY_DIR)
@@ -97,37 +158,19 @@ function(hunter_gate_do_download)
     )
   endif()
 
-  set(TEMP_DIR "${PROJECT_BINARY_DIR}/_3rdParty/gate")
-  set(TEMP_BUILD "${TEMP_DIR}/_builds")
-  set(install_lock "${HUNTER_BASE}/install.lock")
-  string(TIMESTAMP time_now)
-  set(
-      lock_info_written
-      "Install triggered from `${TEMP_DIR}` at ${time_now}. "
-      "If this build interrupted by user "
-      "please remove ${install_lock} file manually"
-  )
-
-  if(NOT EXISTS "${install_lock}")
-    # Install synchronization
-    file(WRITE "${install_lock}" "${lock_info_written}")
-  endif()
-
-  # Hope this helps (:
-  execute_process(COMMAND "${CMAKE_COMMAND}" -E sleep 2)
-
-  file(READ "${install_lock}" lock_info_read)
-  string(COMPARE EQUAL "${lock_info_written}" "${lock_info_read}" locked_by_us)
-
-  if(NOT locked_by_us)
+  hunter_gate_try_lock(lock_successful)
+  if(NOT lock_successful)
     # Return and wait until HUNTER_GATE_INSTALL_DONE created
     return()
   endif()
 
+  set(TEMP_DIR "${PROJECT_BINARY_DIR}/_3rdParty/gate")
+  set(TEMP_BUILD "${TEMP_DIR}/_builds")
+
   message(
       STATUS
       "[hunter] Hunter not found, start download to '${HUNTER_BASE}' ..."
-      "${lock_info_written}"
+      "(${TEMP_BUILD})"
   )
 
   file(
@@ -184,7 +227,7 @@ function(hunter_gate_do_download)
     message(FATAL_ERROR "Build download project failed")
   endif()
 
-  file(REMOVE "${install_lock}")
+  file(REMOVE_RECURSE "${HUNTER_LOCK_PATH}")
   file(WRITE "${HUNTER_GATE_INSTALL_DONE}" "done")
 
   message(STATUS "[hunter] downloaded to '${HUNTER_BASE}'")
@@ -232,20 +275,40 @@ macro(HunterGate)
   set(HUNTER_BASE "${HUNTER_BASE}" CACHE PATH "Hunter base directory")
   set(HUNTER_SELF "${HUNTER_SELF}" CACHE PATH "Hunter self directory")
 
+  set(HUNTER_LOCK_PATH "${HUNTER_BASE}/directory-lock")
+  set(HUNTER_LOCK_INFO "${HUNTER_LOCK_PATH}/info")
+  set(HUNTER_LOCK_FULL_INFO "${HUNTER_LOCK_PATH}/fullinfo")
+
   if(NOT EXISTS "${HUNTER_BASE}")
     hunter_gate_do_download()
   endif()
 
   while(NOT EXISTS "${HUNTER_GATE_INSTALL_DONE}")
-    string(TIMESTAMP time_now)
     # Directory already created, but installation is not finished yet
-    execute_process(
-        COMMAND
-            "${CMAKE_COMMAND}"
-            -E
-            echo
-            "[${time_now}] Install already triggered, waiting..."
+    if(EXISTS "${HUNTER_LOCK_FULL_INFO}")
+      file(READ "${HUNTER_LOCK_FULL_INFO}" _fullinfo)
+    else()
+      set(_fullinfo "????")
+    endif()
+    string(TIMESTAMP _time_now)
+    message(
+        "[${_time_now}] Install already triggered, waiting for:\n${_fullinfo}\n"
+        "If that build cancelled (interrupted by user or some other reason), "
+        "please remove this directory manually:\n\n"
+        "    ${HUNTER_LOCK_PATH}\n\n"
+        "then run CMake again."
     )
+    # Some sanity checks
+    if(EXISTS "${HUNTER_LOCK_INFO}")
+      file(READ "${HUNTER_LOCK_INFO}" _info)
+      string(COMPARE EQUAL "${_info}" "${PROJECT_BINARY_DIR}" incorrect)
+      if(incorrect)
+        message(FATAL_ERROR "Waiting for self")
+      endif()
+      if(NOT EXISTS "${_info}")
+        message(FATAL_ERROR "Waiting for deleted directory")
+      endif()
+    endif()
     execute_process(COMMAND "${CMAKE_COMMAND}" -E sleep 1)
   endwhile()
 
