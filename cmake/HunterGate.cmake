@@ -111,7 +111,7 @@ function(hunter_gate_try_lock result)
     )
   else()
     execute_process(
-        COMMAND mkdir -p "${lock_path}"
+        COMMAND mkdir "${lock_path}"
         RESULT_VARIABLE lock_result
         OUTPUT_QUIET
         ERROR_QUIET
@@ -280,6 +280,14 @@ macro(HunterGate)
   set(HUNTER_LOCK_FULL_INFO "${HUNTER_LOCK_PATH}/fullinfo")
 
   if(NOT EXISTS "${HUNTER_BASE}")
+    file(MAKE_DIRECTORY "${HUNTER_BASE}")
+    if(NOT EXISTS "${HUNTER_BASE}")
+      message(
+          FATAL_ERROR
+          "Can't create directory `${HUNTER_BASE}`"
+          "(probably no permissions)"
+      )
+    endif()
     hunter_gate_do_download()
   endif()
 
