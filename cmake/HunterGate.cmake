@@ -106,19 +106,21 @@ function(hunter_gate_try_lock result)
     execute_process(
         COMMAND cmd /C mkdir "${lock_path}"
         RESULT_VARIABLE lock_result
-        OUTPUT_QUIET
-        ERROR_QUIET
+        OUTPUT_VARIABLE lock_result_info
+        ERROR_VARIABLE lock_result_info
     )
   else()
     execute_process(
         COMMAND mkdir "${lock_path}"
         RESULT_VARIABLE lock_result
-        OUTPUT_QUIET
-        ERROR_QUIET
+        OUTPUT_VARIABLE lock_result_info
+        ERROR_VARIABLE lock_result_info
     )
   endif()
 
   if(NOT lock_result EQUAL 0)
+    message("Lock failed with result: ${lock_result}")
+    message("Reason:  ${lock_result_info}")
     set(${result} FALSE PARENT_SCOPE)
     return()
   endif()
