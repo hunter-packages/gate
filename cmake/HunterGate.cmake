@@ -217,6 +217,9 @@ function(hunter_gate_do_download)
   )
 
   if(NOT HUNTER_DOWNLOAD_RESULT EQUAL 0)
+    # Pretend that we done (other projects will crash)
+    file(REMOVE_RECURSE "${HUNTER_LOCK_PATH}")
+    file(WRITE "${HUNTER_GATE_INSTALL_DONE}" "done")
     message(FATAL_ERROR "Configure download project failed")
   endif()
 
@@ -230,6 +233,9 @@ function(hunter_gate_do_download)
   )
 
   if(NOT HUNTER_DOWNLOAD_RESULT EQUAL 0)
+    # Pretend that we done (other projects will crash)
+    file(REMOVE_RECURSE "${HUNTER_LOCK_PATH}")
+    file(WRITE "${HUNTER_GATE_INSTALL_DONE}" "done")
     message(FATAL_ERROR "Build download project failed")
   endif()
 
