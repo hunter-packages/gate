@@ -273,6 +273,57 @@ function(hunter_gate_do_download)
   message(STATUS "[hunter] downloaded to '${HUNTER_BASE}'")
 endfunction()
 
+function(hunter_gate_init)
+  if(NOT EXISTS "${HUNTER_BASE}")
+    file(MAKE_DIRECTORY "${HUNTER_BASE}")
+    if(NOT EXISTS "${HUNTER_BASE}")
+      message(
+          FATAL_ERROR
+          "Can't create directory `${HUNTER_BASE}`"
+          "(probably no permissions)"
+      )
+    endif()
+    hunter_gate_do_download()
+  endif()
+
+  while(NOT EXISTS "${HUNTER_GATE_INSTALL_DONE}")
+    # Directory already created, but installation is not finished yet
+    if(EXISTS "${HUNTER_LOCK_FULL_INFO}")
+      file(READ "${HUNTER_LOCK_FULL_INFO}" _fullinfo)
+    else()
+      set(_fullinfo "????")
+    endif()
+    string(TIMESTAMP _time_now)
+    message(
+        "[${_time_now}] Install already triggered, waiting for:\n${_fullinfo}\n"
+        "If that build cancelled (interrupted by user or some other reason), "
+        "please remove this directory manually:\n\n"
+        "    ${HUNTER_LOCK_PATH}\n\n"
+        "then run CMake again."
+    )
+    # Some sanity checks
+    if(EXISTS "${HUNTER_LOCK_INFO}")
+      file(READ "${HUNTER_LOCK_INFO}" _info)
+      string(COMPARE EQUAL "${_info}" "${PROJECT_BINARY_DIR}" incorrect)
+      if(incorrect)
+        message(FATAL_ERROR "Waiting for self")
+      endif()
+      if(NOT EXISTS "${_info}")
+        # Do not crash here, this may happens (checking/reading is not atomic)
+        message("Waiting for deleted directory!")
+      endif()
+    endif()
+    execute_process(COMMAND "${CMAKE_COMMAND}" -E sleep 1)
+  endwhile()
+
+  if(NOT EXISTS "${HUNTER_SELF}/cmake/Hunter")
+    message(
+        FATAL_ERROR
+        "Internal error can't find master file in directory `${HUNTER_BASE}`"
+    )
+  endif()
+endfunction()
+
 macro(HunterGate)
   # HUNTER_SHA1 may already be defined by other project
   if(NOT HUNTER_SHA1)
@@ -326,54 +377,7 @@ macro(HunterGate)
   set(HUNTER_LOCK_INFO "${HUNTER_LOCK_PATH}/info")
   set(HUNTER_LOCK_FULL_INFO "${HUNTER_LOCK_PATH}/fullinfo")
 
-  if(NOT EXISTS "${HUNTER_BASE}")
-    file(MAKE_DIRECTORY "${HUNTER_BASE}")
-    if(NOT EXISTS "${HUNTER_BASE}")
-      message(
-          FATAL_ERROR
-          "Can't create directory `${HUNTER_BASE}`"
-          "(probably no permissions)"
-      )
-    endif()
-    hunter_gate_do_download()
-  endif()
-
-  while(NOT EXISTS "${HUNTER_GATE_INSTALL_DONE}")
-    # Directory already created, but installation is not finished yet
-    if(EXISTS "${HUNTER_LOCK_FULL_INFO}")
-      file(READ "${HUNTER_LOCK_FULL_INFO}" _fullinfo)
-    else()
-      set(_fullinfo "????")
-    endif()
-    string(TIMESTAMP _time_now)
-    message(
-        "[${_time_now}] Install already triggered, waiting for:\n${_fullinfo}\n"
-        "If that build cancelled (interrupted by user or some other reason), "
-        "please remove this directory manually:\n\n"
-        "    ${HUNTER_LOCK_PATH}\n\n"
-        "then run CMake again."
-    )
-    # Some sanity checks
-    if(EXISTS "${HUNTER_LOCK_INFO}")
-      file(READ "${HUNTER_LOCK_INFO}" _info)
-      string(COMPARE EQUAL "${_info}" "${PROJECT_BINARY_DIR}" incorrect)
-      if(incorrect)
-        message(FATAL_ERROR "Waiting for self")
-      endif()
-      if(NOT EXISTS "${_info}")
-        # Do not crash here, this may happens (checking/reading is not atomic)
-        message("Waiting for deleted directory!")
-      endif()
-    endif()
-    execute_process(COMMAND "${CMAKE_COMMAND}" -E sleep 1)
-  endwhile()
-
-  if(NOT EXISTS "${HUNTER_SELF}/cmake/Hunter")
-    message(
-        FATAL_ERROR
-        "Internal error can't find master file in directory `${HUNTER_BASE}`"
-    )
-  endif()
+  hunter_gate_init()
 
   # HUNTER_BASE found or downloaded if not exists, i.e. can be used now
   include("${HUNTER_SELF}/cmake/Hunter")
