@@ -40,6 +40,8 @@
 cmake_minimum_required(VERSION 3.0)
 include(CMakeParseArguments)
 
+option(HUNTER_ENABLED "Enable Hunter package manager support" ON)
+
 # Set HUNTER_ROOT cmake variable to suitable value.
 # Info about variable can be found in HUNTER_ROOT_INFO.
 function(hunter_gate_detect_root)
