@@ -163,6 +163,16 @@ function(hunter_gate_try_lock result)
   set(${result} TRUE PARENT_SCOPE)
 endfunction()
 
+# Remove lock directory that created by `hunter_gate_try_lock`
+function(hunter_gate_unlock)
+  file(REMOVE_RECURSE "${HUNTER_LOCK_PATH}")
+
+  # If failed pretend that we done.
+  # Other projects will crash when check the
+  # existance of `${HUNTER_SELF}/cmake/Hunter`
+  file(WRITE "${HUNTER_GATE_INSTALL_DONE}" "done")
+endfunction()
+
 # Download project to HUNTER_BASE
 function(hunter_gate_do_download)
   if(NOT HUNTER_BASE)
@@ -238,9 +248,7 @@ function(hunter_gate_do_download)
   )
 
   if(NOT HUNTER_DOWNLOAD_RESULT EQUAL 0)
-    # Pretend that we done (other projects will crash)
-    file(REMOVE_RECURSE "${HUNTER_LOCK_PATH}")
-    file(WRITE "${HUNTER_GATE_INSTALL_DONE}" "done")
+    hunter_gate_unlock()
     message(FATAL_ERROR "Configure download project failed")
   endif()
 
@@ -254,14 +262,11 @@ function(hunter_gate_do_download)
   )
 
   if(NOT HUNTER_DOWNLOAD_RESULT EQUAL 0)
-    # Pretend that we done (other projects will crash)
-    file(REMOVE_RECURSE "${HUNTER_LOCK_PATH}")
-    file(WRITE "${HUNTER_GATE_INSTALL_DONE}" "done")
+    hunter_gate_unlock()
     message(FATAL_ERROR "Build download project failed")
   endif()
 
-  file(REMOVE_RECURSE "${HUNTER_LOCK_PATH}")
-  file(WRITE "${HUNTER_GATE_INSTALL_DONE}" "done")
+  hunter_gate_unlock()
 
   message(STATUS "[hunter] downloaded to '${HUNTER_BASE}'")
 endfunction()
