@@ -377,13 +377,19 @@ macro(HunterGate)
   set(HUNTER_LOCK_INFO "${HUNTER_LOCK_PATH}/info")
   set(HUNTER_LOCK_FULL_INFO "${HUNTER_LOCK_PATH}/fullinfo")
 
-  hunter_gate_init()
+  if(HUNTER_ENABLED)
+    hunter_gate_init()
 
-  # HUNTER_BASE found or downloaded if not exists, i.e. can be used now
-  include("${HUNTER_SELF}/cmake/Hunter")
+    # HUNTER_BASE found or downloaded if not exists, i.e. can be used now
+    include("${HUNTER_SELF}/cmake/Hunter")
 
-  include(hunter_status_debug)
-  hunter_status_debug("${HUNTER_ROOT_INFO}")
+    include(hunter_status_debug)
+    hunter_status_debug("${HUNTER_ROOT_INFO}")
 
-  include(hunter_add_package)
+    include(hunter_add_package)
+  else()
+    # Empty function to avoid error "unknown function"
+    function(hunter_add_package)
+    endfunction()
+  endif()
 endmacro()
