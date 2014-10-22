@@ -212,10 +212,13 @@ function(hunter_gate_do_download)
       "(${TEMP_BUILD})"
   )
 
+  # Disabling languages speeds up a little bit, reduces noise in the output
+  # and avoids path too long windows error
   file(
       WRITE
       "${TEMP_DIR}/CMakeLists.txt"
       "cmake_minimum_required(VERSION 2.8.10)\n"
+      "project(HunterDownload LANGUAGES NONE)\n"
       "include(ExternalProject)\n"
       "ExternalProject_Add(\n"
       "    Hunter\n"
@@ -236,15 +239,11 @@ function(hunter_gate_do_download)
       ")\n"
   )
 
-  # CMAKE_*_COMPILER_WORKS speed up a little bit
-  # and avoid path too long windows error
   execute_process(
       COMMAND
           "${CMAKE_COMMAND}"
           "-H${TEMP_DIR}"
           "-B${TEMP_BUILD}"
-          -DCMAKE_CXX_COMPILER_WORKS=ON
-          -DCMAKE_C_COMPILER_WORKS=ON
       WORKING_DIRECTORY "${TEMP_DIR}"
       RESULT_VARIABLE HUNTER_DOWNLOAD_RESULT
   )
