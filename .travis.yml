@@ -1,27 +1,52 @@
+# Linux (https://github.com/travis-ci-tester/toolchain-table)
+
 language:
     - python
 
 python:
     - "3.3"
 
+env:
+    - TOOLCHAIN=default CONFIG=Release
+    - TOOLCHAIN=default CONFIG=Debug
+    - TOOLCHAIN=clang-libstdcxx CONFIG=Release
+    - TOOLCHAIN=clang-libstdcxx CONFIG=Debug
+    - TOOLCHAIN=gcc-4-8 CONFIG=Release
+    - TOOLCHAIN=gcc-4-8 CONFIG=Debug
+    - TOOLCHAIN=analyze CONFIG=Release
+    - TOOLCHAIN=analyze CONFIG=Debug
+    - TOOLCHAIN=sanitize-address CONFIG=Release
+    - TOOLCHAIN=sanitize-address CONFIG=Debug
+    - TOOLCHAIN=sanitize-leak CONFIG=Release
+    - TOOLCHAIN=sanitize-leak CONFIG=Debug
+    - TOOLCHAIN=sanitize-thread CONFIG=Release
+    - TOOLCHAIN=sanitize-thread CONFIG=Debug
+
 install:
+    # install gcc-4.8 with c++11 support: https://github.com/travis-ci-tester/travis-test-gcc-cxx-11
+    - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+    - sudo apt-get update
+    - sudo apt-get install g++-4.8
+    # -- end
+    # https://github.com/travis-ci-tester/travis-test-clang-cxx-11
+    - sudo apt-get install libstdc++-4.8-dev
+    # -- end
     - sudo apt-get install cmake
     - sudo apt-get install libcurl3-dev
     # install cmake toolchains and script
-    - POLLY_VERSION="0.4.4"
+    - POLLY_VERSION="0.6.1"
     - wget "https://github.com/ruslo/polly/archive/v${POLLY_VERSION}.tar.gz"
     - tar xf "v${POLLY_VERSION}.tar.gz"
-    - export POLLY_ROOT="`pwd`/polly-${POLLY_VERSION}"
-    - export PATH="${POLLY_ROOT}/bin:${PATH}"
+    - export PATH="`pwd`/polly-${POLLY_VERSION}/bin:${PATH}"
     # -- end
     # install cmake
-    - CMAKE_VERSION="3.0.0-ios-universal"
+    - CMAKE_VERSION="3.0.2-ios-universal"
     - wget "https://github.com/ruslo/CMake/archive/v${CMAKE_VERSION}.tar.gz"
     - openssl sha1 "v${CMAKE_VERSION}.tar.gz"
     - tar xf "v${CMAKE_VERSION}.tar.gz"
     - cd "CMake-${CMAKE_VERSION}"
-    - build.py --install --toolchain default --config Release --fwd "CMAKE_USE_SYSTEM_CURL=YES"
-    - export PATH="`pwd`/_install/default/bin:${PATH}"
+    -   build.py --install --toolchain default --config Release --fwd "CMAKE_USE_SYSTEM_CURL=YES"
+    -   export PATH="`pwd`/_install/default/bin:${PATH}"
     - cd ..
     # -- end
     # verify installed cmake
@@ -30,9 +55,7 @@ install:
     # -- end
 
 script:
-    - mkdir _builds
-    - cd _builds
     # download all
-    - cmake ..
+    - build.py --toolchain ${TOOLCHAIN} --config ${CONFIG} --verbose
     # if run generate again, no download needed
-    - cmake ..
+    - build.py --toolchain ${TOOLCHAIN} --config ${CONFIG} --verbose
