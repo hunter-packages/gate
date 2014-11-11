@@ -16,8 +16,8 @@ This is a gate file to [hunter](https://github.com/ruslo/hunter) package manager
 * Put any valid [hunter](https://github.com/ruslo/hunter/releases) archive with `SHA1` hash:
 ```
 HunterGate(
-    URL "https://github.com/ruslo/hunter/archive/v0.5.0.tar.gz"
-    SHA1 "8c9a553d3dbde74d411167ae67423416dd0e1a31"
+    URL "https://github.com/ruslo/hunter/archive/v0.7.0.tar.gz"
+    SHA1 "e730118c7ec65126398f8d4f09daf9366791ede0"
 )
 ```
 
@@ -28,8 +28,8 @@ Optionally custom [config.cmake][1] file can be specified. File may has differen
 * `GLOBAL`. The one from hunter archive:
 ```cmake
 HunterGate(
-    URL "https://github.com/ruslo/hunter/archive/v0.5.0.tar.gz"
-    SHA1 "8c9a553d3dbde74d411167ae67423416dd0e1a31"
+    URL "https://github.com/ruslo/hunter/archive/v0.7.0.tar.gz"
+    SHA1 "e730118c7ec65126398f8d4f09daf9366791ede0"
     GLOBAL myconfig
         # load `${HUNTER_SELF}/cmake/configs/myconfig.cmake` instead of
         # default `${HUNTER_SELF}/cmake/configs/default.cmake`
@@ -38,16 +38,16 @@ HunterGate(
 * `LOCAL`. Default local config.
 ```
 HunterGate(
-    URL "https://github.com/ruslo/hunter/archive/v0.5.0.tar.gz"
-    SHA1 "8c9a553d3dbde74d411167ae67423416dd0e1a31"
+    URL "https://github.com/ruslo/hunter/archive/v0.7.0.tar.gz"
+    SHA1 "e730118c7ec65126398f8d4f09daf9366791ede0"
     LOCAL # load `${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/config.cmake`
 )
 ```
 * `FILEPATH`. Any location.
 ```
 HunterGate(
-    URL "https://github.com/ruslo/hunter/archive/v0.5.0.tar.gz"
-    SHA1 "8c9a553d3dbde74d411167ae67423416dd0e1a31"
+    URL "https://github.com/ruslo/hunter/archive/v0.7.0.tar.gz"
+    SHA1 "e730118c7ec65126398f8d4f09daf9366791ede0"
     FILEPATH "/any/path/to/config.cmake"
 )
 ```
