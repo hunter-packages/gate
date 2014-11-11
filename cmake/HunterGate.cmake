@@ -381,17 +381,26 @@ macro(HunterGate)
   if(EXISTS "${HUNTER_ROOT}/cmake/Hunter")
     # hunter installed manually
     set(HUNTER_SHA1 "")
+    set(HUNTER_SHA1_SHORT "")
     set(HUNTER_URL "")
     set(HUNTER_SELF "${HUNTER_ROOT}")
     set(HUNTER_GATE_INSTALL_DONE "${HUNTER_ROOT}/_Base")
     file(MAKE_DIRECTORY "${HUNTER_ROOT}/_Base")
   else()
-    set(HUNTER_SELF "${HUNTER_ROOT}/_Base/${HUNTER_SHA1}/Self")
+    string(SUBSTRING "${HUNTER_SHA1}" 0 7 HUNTER_SHA1_SHORT)
+    set(HUNTER_SELF "${HUNTER_ROOT}/_Base/${HUNTER_SHA1_SHORT}/Self")
     set(HUNTER_GATE_INSTALL_DONE "${HUNTER_SELF}/../install-gate-done")
   endif()
 
   set(HUNTER_URL "${HUNTER_URL}" CACHE STRING "Hunter archive URL")
   set(HUNTER_SHA1 "${HUNTER_SHA1}" CACHE STRING "Hunter archive SHA1 hash")
+  set(
+      HUNTER_SHA1_SHORT
+      "${HUNTER_SHA1_SHORT}"
+      CACHE
+      STRING
+      "Hunter archive SHA1 hash (short)"
+  )
 
   # Beautify path, fix probable problems with windows path slashes
   get_filename_component(HUNTER_SELF "${HUNTER_SELF}" ABSOLUTE)
