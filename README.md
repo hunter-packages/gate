@@ -21,6 +21,43 @@ HunterGate(
 )
 ```
 
+## Usage (custom config)
+
+Optionally custom [config.cmake][1] file can be specified. File may has different locations:
+
+* `GLOBAL`. The one from hunter archive:
+```cmake
+HunterGate(
+    URL "https://github.com/ruslo/hunter/archive/v0.5.0.tar.gz"
+    SHA1 "8c9a553d3dbde74d411167ae67423416dd0e1a31"
+    GLOBAL myconfig
+        # load `${HUNTER_SELF}/cmake/configs/myconfig.cmake` instead of
+        # default `${HUNTER_SELF}/cmake/configs/default.cmake`
+)
+```
+* `LOCAL`. Default local config.
+```
+HunterGate(
+    URL "https://github.com/ruslo/hunter/archive/v0.5.0.tar.gz"
+    SHA1 "8c9a553d3dbde74d411167ae67423416dd0e1a31"
+    LOCAL # load `${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/config.cmake`
+)
+```
+* `FILEPATH`. Any location.
+```
+HunterGate(
+    URL "https://github.com/ruslo/hunter/archive/v0.5.0.tar.gz"
+    SHA1 "8c9a553d3dbde74d411167ae67423416dd0e1a31"
+    FILEPATH "/any/path/to/config.cmake"
+)
+```
+
+### Notes
+
+* Note that locations of libraries in `HUNTER_ROOT` directory depends on `config.cmake` => changes of `config.cmake` will be applied **only after clearing cache**. This is similar to work of `find_package` command. Even if it will be allowed to change `config.cmake` file on-the-fly, cached `find_package` variables will not change and new paths will not be applied.
+
+* You don't need to specify [hunter_config][2] command for all projects. Set version of the package you're interested in - others will be used from default `config.cmake`.
+
 ## Effects
 * Try to detect `hunter`:
  * test cmake variable `HUNTER_ROOT` (control, shared downloads and builds)
@@ -46,3 +83,6 @@ On success this message will be printed:
 ## Links
 * [Hunter](https://github.com/ruslo/hunter)
 * [Some packages](https://github.com/ruslo/hunter/wiki/Packages)
+
+[1]: https://github.com/ruslo/hunter/blob/master/cmake/config.cmake
+[2]: https://github.com/ruslo/hunter/wiki/Hunter-modules#hunter_config
