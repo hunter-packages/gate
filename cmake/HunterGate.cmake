@@ -175,10 +175,14 @@ function(hunter_gate_unlock)
   file(WRITE "${HUNTER_GATE_INSTALL_DONE}" "done")
 endfunction()
 
-# Download project to HUNTER_BASE
+# Download project and unpack it to HUNTER_SELF
 function(hunter_gate_do_download)
-  if(NOT HUNTER_BASE)
-    message(FATAL_ERROR "Internal error (HUNTER_BASE is empty)")
+  if(NOT HUNTER_ROOT)
+    message(FATAL_ERROR "Internal error (HUNTER_ROOT is empty)")
+  endif()
+
+  if(NOT HUNTER_SELF)
+    message(FATAL_ERROR "Internal error (HUNTER_SELF is empty)")
   endif()
 
   if(NOT HUNTER_GATE_INSTALL_DONE)
@@ -208,8 +212,11 @@ function(hunter_gate_do_download)
 
   message(
       STATUS
-      "[hunter] Hunter not found, start download to '${HUNTER_BASE}' ..."
-      "(${TEMP_BUILD})"
+      "[hunter] Hunter not found, start download to '${HUNTER_ROOT}' ..."
+  )
+  message(
+      STATUS
+      "[hunter] Temporary build directory: '${TEMP_BUILD}'"
   )
 
   # Disabling languages speeds up a little bit, reduces noise in the output
@@ -227,9 +234,9 @@ function(hunter_gate_do_download)
       "    URL_HASH\n"
       "    SHA1=${HUNTER_SHA1}\n"
       "    DOWNLOAD_DIR\n"
-      "    \"${HUNTER_BASE}/Download\"\n"
+      "    \"${HUNTER_ROOT}/_Base/Self-Downloads\"\n"
       "    SOURCE_DIR\n"
-      "    \"${HUNTER_BASE}/Self\"\n"
+      "    \"${HUNTER_SELF}\"\n"
       "    CONFIGURE_COMMAND\n"
       "    \"\"\n"
       "    BUILD_COMMAND\n"
@@ -269,16 +276,16 @@ function(hunter_gate_do_download)
 
   hunter_gate_unlock()
 
-  message(STATUS "[hunter] downloaded to '${HUNTER_BASE}'")
+  message(STATUS "[hunter] downloaded to '${HUNTER_ROOT}'")
 endfunction()
 
 function(hunter_gate_init)
-  if(NOT EXISTS "${HUNTER_BASE}")
-    file(MAKE_DIRECTORY "${HUNTER_BASE}")
-    if(NOT EXISTS "${HUNTER_BASE}")
+  if(NOT EXISTS "${HUNTER_SELF}")
+    file(MAKE_DIRECTORY "${HUNTER_SELF}")
+    if(NOT EXISTS "${HUNTER_SELF}")
       message(
           FATAL_ERROR
-          "Can't create directory `${HUNTER_BASE}`"
+          "Can't create directory `${HUNTER_SELF}`"
           "(probably no permissions)"
       )
     endif()
@@ -318,15 +325,15 @@ function(hunter_gate_init)
   if(NOT EXISTS "${HUNTER_SELF}/cmake/Hunter")
     message(
         FATAL_ERROR
-        "Internal error can't find master file in directory `${HUNTER_BASE}`"
+        "Internal error can't find master file in directory `${HUNTER_SELF}`"
     )
   endif()
 endfunction()
 
 macro(HunterGate)
-  # HUNTER_SHA1 may already be defined by other project
-  if(NOT HUNTER_SHA1)
-    cmake_parse_arguments(HUNTER "" "URL;SHA1" "" ${ARGV})
+  # If HUNTER_SHA1 or HUNTER_CONFIG_SHA1 is not in cache yet
+  if(NOT HUNTER_SHA1 OR NOT HUNTER_CONFIG_SHA1)
+    cmake_parse_arguments(HUNTER "LOCAL" "URL;SHA1;GLOBAL;FILEPATH" "" ${ARGV})
     if(NOT HUNTER_SHA1)
       message(FATAL_ERROR "SHA1 suboption of HunterGate is mandatory")
     endif()
@@ -335,6 +342,30 @@ macro(HunterGate)
     endif()
     if(HUNTER_UNPARSED_ARGUMENTS)
       message(FATAL_ERROR "HunterGate unparsed arguments")
+    endif()
+    if(HUNTER_GLOBAL)
+      if(HUNTER_LOCAL)
+        message(FATAL_ERROR "Unexpected LOCAL (already has GLOBAL)")
+      endif()
+      if(HUNTER_FILEPATH)
+        message(FATAL_ERROR "Unexpected FILEPATH (already has GLOBAL)")
+      endif()
+    endif()
+    if(HUNTER_LOCAL)
+      if(HUNTER_GLOBAL)
+        message(FATAL_ERROR "Unexpected GLOBAL (already has LOCAL)")
+      endif()
+      if(HUNTER_FILEPATH)
+        message(FATAL_ERROR "Unexpected FILEPATH (already has LOCAL)")
+      endif()
+    endif()
+    if(HUNTER_FILEPATH)
+      if(HUNTER_GLOBAL)
+        message(FATAL_ERROR "Unexpected GLOBAL (already has FILEPATH)")
+      endif()
+      if(HUNTER_LOCAL)
+        message(FATAL_ERROR "Unexpected LOCAL (already has FILEPATH)")
+      endif()
     endif()
   endif()
 
@@ -351,36 +382,50 @@ macro(HunterGate)
     # hunter installed manually
     set(HUNTER_SHA1 "")
     set(HUNTER_URL "")
-    set(HUNTER_BASE "${HUNTER_ROOT}/_Base")
     set(HUNTER_SELF "${HUNTER_ROOT}")
-    set(HUNTER_GATE_INSTALL_DONE "${HUNTER_BASE}")
-    file(MAKE_DIRECTORY "${HUNTER_BASE}")
+    set(HUNTER_GATE_INSTALL_DONE "${HUNTER_ROOT}/_Base")
+    file(MAKE_DIRECTORY "${HUNTER_ROOT}/_Base")
   else()
-    set(HUNTER_BASE "${HUNTER_ROOT}/_Base/${HUNTER_SHA1}")
-    set(HUNTER_SELF "${HUNTER_BASE}/Self")
-    set(HUNTER_GATE_INSTALL_DONE "${HUNTER_BASE}/install-gate-done")
+    set(HUNTER_SELF "${HUNTER_ROOT}/_Base/${HUNTER_SHA1}/Self")
+    set(HUNTER_GATE_INSTALL_DONE "${HUNTER_SELF}/../install-gate-done")
   endif()
 
   set(HUNTER_URL "${HUNTER_URL}" CACHE STRING "Hunter archive URL")
   set(HUNTER_SHA1 "${HUNTER_SHA1}" CACHE STRING "Hunter archive SHA1 hash")
 
   # Beautify path, fix probable problems with windows path slashes
-  get_filename_component(HUNTER_BASE "${HUNTER_BASE}" ABSOLUTE)
   get_filename_component(HUNTER_SELF "${HUNTER_SELF}" ABSOLUTE)
 
   set(HUNTER_ROOT "${HUNTER_ROOT}" CACHE PATH "Hunter root directory")
-  set(HUNTER_BASE "${HUNTER_BASE}" CACHE PATH "Hunter base directory")
   set(HUNTER_SELF "${HUNTER_SELF}" CACHE PATH "Hunter self directory")
 
-  set(HUNTER_LOCK_PATH "${HUNTER_BASE}/directory-lock")
+  if(NOT HUNTER_CONFIG_SHA1)
+    if(HUNTER_GLOBAL)
+      set(HUNTER_CONFIG "${HUNTER_SELF}/cmake/configs/${HUNTER_GLOBAL}.cmake")
+    elseif(HUNTER_LOCAL)
+      set(HUNTER_CONFIG "${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/config.cmake")
+    elseif(HUNTER_FILEPATH)
+      set(HUNTER_CONFIG "${HUNTER_FILEPATH}")
+    else()
+      set(HUNTER_CONFIG "${HUNTER_SELF}/cmake/configs/default.cmake")
+    endif()
+  endif()
+
+  set(HUNTER_LOCK_PATH "${HUNTER_SELF}/../directory-lock")
   set(HUNTER_LOCK_INFO "${HUNTER_LOCK_PATH}/info")
   set(HUNTER_LOCK_FULL_INFO "${HUNTER_LOCK_PATH}/fullinfo")
 
   if(HUNTER_ENABLED)
     hunter_gate_init()
 
-    # HUNTER_BASE found or downloaded if not exists, i.e. can be used now
+    # HUNTER_SELF found or downloaded if not exists, i.e. can be used now
     include("${HUNTER_SELF}/cmake/Hunter")
+    if(NOT HUNTER_CONFIG_SHA1)
+      message(FATAL_ERROR "Internal error: HUNTER_CONFIG_SHA1 is empty")
+    endif()
+    if(NOT HUNTER_BASE)
+      message(FATAL_ERROR "Internal error: HUNTER_BASE is empty")
+    endif()
 
     include(hunter_status_debug)
     hunter_status_debug("${HUNTER_ROOT_INFO}")
