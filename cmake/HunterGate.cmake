@@ -37,7 +37,7 @@
 #     * https://github.com/hunter-packages/gate/
 #     * https://github.com/ruslo/hunter
 
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.0) # Minimum for Hunter
 include(CMakeParseArguments)
 
 option(HUNTER_ENABLED "Enable Hunter package manager support" ON)
@@ -224,7 +224,7 @@ function(hunter_gate_do_download)
   file(
       WRITE
       "${TEMP_DIR}/CMakeLists.txt"
-      "cmake_minimum_required(VERSION 2.8.10)\n"
+      "cmake_minimum_required(VERSION 3.0)\n"
       "project(HunterDownload LANGUAGES NONE)\n"
       "include(ExternalProject)\n"
       "ExternalProject_Add(\n"
