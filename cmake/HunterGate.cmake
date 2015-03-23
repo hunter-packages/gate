@@ -331,8 +331,8 @@ function(hunter_gate_init)
 endfunction()
 
 macro(HunterGate)
-  # If HUNTER_SHA1 or HUNTER_CONFIG_SHA1 is not in cache yet
-  if(NOT HUNTER_SHA1 OR NOT HUNTER_CONFIG_SHA1)
+  # If HUNTER_SHA1 is not in cache yet (i.e. first HunterGate call)
+  if(NOT HUNTER_SHA1)
     cmake_parse_arguments(HUNTER "LOCAL" "URL;SHA1;GLOBAL;FILEPATH" "" ${ARGV})
     if(NOT HUNTER_SHA1)
       message(FATAL_ERROR "SHA1 suboption of HunterGate is mandatory")
@@ -381,26 +381,20 @@ macro(HunterGate)
   if(EXISTS "${HUNTER_ROOT}/cmake/Hunter")
     # hunter installed manually
     set(HUNTER_SHA1 "")
-    set(HUNTER_SHA1_SHORT "")
+    set(HUNTER_ID "")
     set(HUNTER_URL "")
     set(HUNTER_SELF "${HUNTER_ROOT}")
     set(HUNTER_GATE_INSTALL_DONE "${HUNTER_ROOT}/_Base")
     file(MAKE_DIRECTORY "${HUNTER_ROOT}/_Base")
   else()
-    string(SUBSTRING "${HUNTER_SHA1}" 0 7 HUNTER_SHA1_SHORT)
-    set(HUNTER_SELF "${HUNTER_ROOT}/_Base/${HUNTER_SHA1_SHORT}/Self")
+    string(SUBSTRING "${HUNTER_SHA1}" 0 7 HUNTER_ID)
+    set(HUNTER_SELF "${HUNTER_ROOT}/_Base/${HUNTER_ID}/Self")
     set(HUNTER_GATE_INSTALL_DONE "${HUNTER_SELF}/../install-gate-done")
   endif()
 
   set(HUNTER_URL "${HUNTER_URL}" CACHE STRING "Hunter archive URL")
   set(HUNTER_SHA1 "${HUNTER_SHA1}" CACHE STRING "Hunter archive SHA1 hash")
-  set(
-      HUNTER_SHA1_SHORT
-      "${HUNTER_SHA1_SHORT}"
-      CACHE
-      STRING
-      "Hunter archive SHA1 hash (short)"
-  )
+  set(HUNTER_ID "${HUNTER_ID}" CACHE STRING "Hunter-ID")
 
   # Beautify path, fix probable problems with windows path slashes
   get_filename_component(HUNTER_SELF "${HUNTER_SELF}" ABSOLUTE)
