@@ -98,11 +98,11 @@ function(hunter_gate_user_error)
   hunter_gate_fatal_error(${ARGV} WIKI "error.incorrect.input.data")
 endfunction()
 
-# Set HUNTER_CACHED_ROOT_NEW cmake variable to suitable value.
+# Set HUNTER_GATE_ROOT cmake variable to suitable value.
 function(hunter_gate_detect_root)
   # Check CMake variable
   if(HUNTER_ROOT)
-    set(HUNTER_CACHED_ROOT_NEW "${HUNTER_ROOT}" PARENT_SCOPE)
+    set(HUNTER_GATE_ROOT "${HUNTER_ROOT}" PARENT_SCOPE)
     hunter_gate_status_debug("HUNTER_ROOT detected by cmake variable")
     return()
   endif()
@@ -110,7 +110,7 @@ function(hunter_gate_detect_root)
   # Check environment variable
   string(COMPARE NOTEQUAL "$ENV{HUNTER_ROOT}" "" not_empty)
   if(not_empty)
-    set(HUNTER_CACHED_ROOT_NEW "$ENV{HUNTER_ROOT}" PARENT_SCOPE)
+    set(HUNTER_GATE_ROOT "$ENV{HUNTER_ROOT}" PARENT_SCOPE)
     hunter_gate_status_debug("HUNTER_ROOT detected by environment variable")
     return()
   endif()
@@ -118,7 +118,7 @@ function(hunter_gate_detect_root)
   # Check HOME environment variable
   string(COMPARE NOTEQUAL "$ENV{HOME}" "" result)
   if(result)
-    set(HUNTER_CACHED_ROOT_NEW "$ENV{HOME}/.hunter" PARENT_SCOPE)
+    set(HUNTER_GATE_ROOT "$ENV{HOME}/.hunter" PARENT_SCOPE)
     hunter_gate_status_debug("HUNTER_ROOT set using HOME environment variable")
     return()
   endif()
@@ -127,11 +127,7 @@ function(hunter_gate_detect_root)
   if(WIN32)
     string(COMPARE NOTEQUAL "$ENV{SYSTEMDRIVE}" "" result)
     if(result)
-      set(
-          HUNTER_CACHED_ROOT_NEW
-          "$ENV{SYSTEMDRIVE}/.hunter"
-          PARENT_SCOPE
-      )
+      set(HUNTER_GATE_ROOT "$ENV{SYSTEMDRIVE}/.hunter" PARENT_SCOPE)
       hunter_gate_status_debug(
           "HUNTER_ROOT set using SYSTEMDRIVE environment variable"
       )
@@ -140,11 +136,7 @@ function(hunter_gate_detect_root)
 
     string(COMPARE NOTEQUAL "$ENV{USERPROFILE}" "" result)
     if(result)
-      set(
-          HUNTER_CACHED_ROOT_NEW
-          "$ENV{USERPROFILE}/.hunter"
-          PARENT_SCOPE
-      )
+      set(HUNTER_GATE_ROOT "$ENV{USERPROFILE}/.hunter" PARENT_SCOPE)
       hunter_gate_status_debug(
           "HUNTER_ROOT set using USERPROFILE environment variable"
       )
@@ -173,7 +165,7 @@ endmacro()
 function(hunter_gate_download dir)
   if(NOT HUNTER_RUN_INSTALL)
     hunter_gate_fatal_error(
-        "Hunter not found in '${HUNTER_CACHED_ROOT_NEW}'"
+        "Hunter not found in '${HUNTER_GATE_ROOT}'"
         "Set HUNTER_RUN_INSTALL=ON to auto-install it from '${HUNTER_GATE_URL}'"
         WIKI "error.run.install"
     )
@@ -341,22 +333,22 @@ function(HunterGate)
     endif()
   endif()
 
-  hunter_gate_detect_root() # set HUNTER_CACHED_ROOT_NEW
+  hunter_gate_detect_root() # set HUNTER_GATE_ROOT
 
   # Beautify path, fix probable problems with windows path slashes
   get_filename_component(
-      HUNTER_CACHED_ROOT_NEW "${HUNTER_CACHED_ROOT_NEW}" ABSOLUTE
+      HUNTER_GATE_ROOT "${HUNTER_GATE_ROOT}" ABSOLUTE
   )
-  hunter_gate_status_debug("HUNTER_ROOT: ${HUNTER_CACHED_ROOT_NEW}")
-  string(FIND "${HUNTER_CACHED_ROOT_NEW}" " " contain_spaces)
+  hunter_gate_status_debug("HUNTER_ROOT: ${HUNTER_GATE_ROOT}")
+  string(FIND "${HUNTER_GATE_ROOT}" " " contain_spaces)
   if(NOT contain_spaces EQUAL -1)
     hunter_gate_fatal_error(
-        "HUNTER_ROOT (${HUNTER_CACHED_ROOT_NEW}) contains spaces"
+        "HUNTER_ROOT (${HUNTER_GATE_ROOT}) contains spaces"
         WIKI "error.spaces.in.hunter.root"
     )
   endif()
 
-  set(master_location "${HUNTER_CACHED_ROOT_NEW}/cmake/Hunter")
+  set(master_location "${HUNTER_GATE_ROOT}/cmake/Hunter")
   if(EXISTS "${master_location}")
     # Hunter downloaded manually (e.g. 'git clone')
     include("${master_location}")
@@ -376,7 +368,7 @@ function(HunterGate)
   endif()
   set(
       archive_id_location
-      "${HUNTER_CACHED_ROOT_NEW}/_Base/Download/Hunter/${HUNTER_GATE_VERSION}"
+      "${HUNTER_GATE_ROOT}/_Base/Download/Hunter/${HUNTER_GATE_VERSION}"
   )
 
   string(SUBSTRING "${HUNTER_GATE_SHA1}" 0 7 ARCHIVE_ID)
@@ -384,8 +376,7 @@ function(HunterGate)
 
   set(done_location "${archive_id_location}/DONE")
   set(sha1_location "${archive_id_location}/SHA1")
-  set(HUNTER_SELF "${archive_id_location}/Unpacked")
-  set(master_location "${HUNTER_SELF}/cmake/Hunter")
+  set(master_location "${archive_id_location}/Unpacked/cmake/Hunter")
 
   if(NOT EXISTS "${done_location}")
     hunter_gate_download("${archive_id_location}")
