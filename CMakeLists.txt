@@ -2,7 +2,6 @@
 # All rights reserved.
 
 cmake_minimum_required(VERSION 3.0)
-project(gate-usage-example)
 
 include("cmake/HunterGate.cmake")
 
@@ -20,6 +19,8 @@ HunterGate(
     URL "https://github.com/ruslo/hunter/archive/v0.7.0.tar.gz"
     SHA1 "e730118c7ec65126398f8d4f09daf9366791ede0"
 )
+
+project(gate-usage-example)
 
 # now hunter can be used, like
 hunter_add_package(Sugar)
