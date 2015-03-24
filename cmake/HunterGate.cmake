@@ -234,7 +234,9 @@ function(hunter_gate_download dir)
   endif()
 
   hunter_gate_status_print(
-      "Downloading/unpacking ${HUNTER_GATE_URL}"
+      "Initializing Hunter workspace (${HUNTER_GATE_SHA1})"
+      "  ${HUNTER_GATE_URL}"
+      "  -> ${dir}"
   )
   execute_process(
       COMMAND
@@ -369,15 +371,16 @@ function(HunterGate)
   string(COMPARE EQUAL "${sha1_value}" "${HUNTER_GATE_SHA1}" is_equal)
   if(NOT is_equal)
     hunter_gate_internal_error(
-        "Short SHA1 collision:\n"
-        "  ${sha1_value} (from ${sha1_location})\n"
+        "Short SHA1 collision:"
+        "  ${sha1_value} (from ${sha1_location})"
         "  ${HUNTER_GATE_SHA1} (HunterGate)"
     )
   endif()
   if(NOT EXISTS "${master_location}")
     hunter_gate_user_error(
-        "Master file not found: ${master_location}\n"
-        "(try to update Hunter/HunterGate)"
+        "Master file not found:"
+        "  ${master_location}"
+        "try to update Hunter/HunterGate"
     )
   endif()
   include("${master_location}")
