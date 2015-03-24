@@ -348,13 +348,6 @@ function(HunterGate)
     )
   endif()
 
-  set(master_location "${HUNTER_GATE_ROOT}/cmake/Hunter")
-  if(EXISTS "${master_location}")
-    # Hunter downloaded manually (e.g. 'git clone')
-    include("${master_location}")
-    return()
-  endif()
-
   string(
       REGEX
       MATCH
@@ -366,6 +359,14 @@ function(HunterGate)
   if(is_empty)
     set(HUNTER_GATE_VERSION "unknown")
   endif()
+
+  set(master_location "${HUNTER_GATE_ROOT}/cmake/Hunter")
+  if(EXISTS "${master_location}")
+    # Hunter downloaded manually (e.g. 'git clone')
+    include("${master_location}")
+    return()
+  endif()
+
   set(
       archive_id_location
       "${HUNTER_GATE_ROOT}/_Base/Download/Hunter/${HUNTER_GATE_VERSION}"
