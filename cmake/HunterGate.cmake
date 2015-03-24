@@ -367,16 +367,16 @@ function(HunterGate)
       REGEX
       MATCH
       "[0-9]+\\.[0-9]+\\.[0-9]+[-_a-z0-9]*"
-      url_version
+      HUNTER_GATE_VERSION
       "${HUNTER_GATE_URL}"
   )
-  string(COMPARE EQUAL "${url_version}" "" is_empty)
+  string(COMPARE EQUAL "${HUNTER_GATE_VERSION}" "" is_empty)
   if(is_empty)
-    set(url_version "unknown")
+    set(HUNTER_GATE_VERSION "unknown")
   endif()
   set(
       archive_id_location
-      "${HUNTER_CACHED_ROOT_NEW}/_Base/Download/Hunter/${url_version}"
+      "${HUNTER_CACHED_ROOT_NEW}/_Base/Download/Hunter/${HUNTER_GATE_VERSION}"
   )
 
   string(SUBSTRING "${HUNTER_GATE_SHA1}" 0 7 ARCHIVE_ID)
