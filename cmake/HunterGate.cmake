@@ -118,28 +118,44 @@ function(hunter_gate_detect_root)
   # Check HOME environment variable
   string(COMPARE NOTEQUAL "$ENV{HOME}" "" result)
   if(result)
-    set(HUNTER_CACHED_ROOT_NEW "$ENV{HOME}/HunterPackages" PARENT_SCOPE)
+    set(HUNTER_CACHED_ROOT_NEW "$ENV{HOME}/.hunter" PARENT_SCOPE)
     hunter_gate_status_debug("HUNTER_ROOT set using HOME environment variable")
     return()
   endif()
 
-  # Check PROGRAMFILES environment variable (windows only)
+  # Check SYSTEMDRIVE and USERPROFILE environment variable (windows only)
   if(WIN32)
-    string(COMPARE NOTEQUAL "$ENV{PROGRAMFILES}" "" result)
+    string(COMPARE NOTEQUAL "$ENV{SYSTEMDRIVE}" "" result)
     if(result)
       set(
           HUNTER_CACHED_ROOT_NEW
-          "$ENV{PROGRAMFILES}/HunterPackages"
+          "$ENV{SYSTEMDRIVE}/.hunter"
           PARENT_SCOPE
       )
       hunter_gate_status_debug(
-          "HUNTER_ROOT set using PROGRAMFILES environment variable"
+          "HUNTER_ROOT set using SYSTEMDRIVE environment variable"
+      )
+      return()
+    endif()
+
+    string(COMPARE NOTEQUAL "$ENV{USERPROFILE}" "" result)
+    if(result)
+      set(
+          HUNTER_CACHED_ROOT_NEW
+          "$ENV{USERPROFILE}/.hunter"
+          PARENT_SCOPE
+      )
+      hunter_gate_status_debug(
+          "HUNTER_ROOT set using USERPROFILE environment variable"
       )
       return()
     endif()
   endif()
 
-  hunter_gate_internal_error("Can't detect HUNTER_ROOT")
+  hunter_gate_fatal_error(
+      "Can't detect HUNTER_ROOT"
+      WIKI "error.detect.hunter.root"
+  )
 endfunction()
 
 macro(hunter_gate_lock dir)
