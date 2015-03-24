@@ -340,6 +340,7 @@ function(HunterGate)
   get_filename_component(
       HUNTER_CACHED_ROOT_NEW "${HUNTER_CACHED_ROOT_NEW}" ABSOLUTE
   )
+  hunter_gate_status_debug("HUNTER_ROOT: ${HUNTER_CACHED_ROOT_NEW}")
 
   set(master_location "${HUNTER_CACHED_ROOT_NEW}/cmake/Hunter")
   if(EXISTS "${master_location}")
