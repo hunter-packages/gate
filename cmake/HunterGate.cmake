@@ -94,6 +94,10 @@ function(hunter_gate_fatal_error)
   hunter_gate_wiki("${hunter_WIKI}")
 endfunction()
 
+function(hunter_gate_user_error)
+  hunter_gate_fatal_error(${ARGV} WIKI "error.incorrect.input.data")
+endfunction()
+
 # Set HUNTER_CACHED_ROOT_NEW cmake variable to suitable value.
 function(hunter_gate_detect_root)
   # Check CMake variable
@@ -135,15 +139,15 @@ function(hunter_gate_detect_root)
     endif()
   endif()
 
-  message(FATAL_ERROR "Can't detect HUNTER_ROOT")
+  hunter_gate_internal_error("Can't detect HUNTER_ROOT")
 endfunction()
 
 macro(hunter_gate_lock dir)
   if(NOT HUNTER_SKIP_LOCK)
     if("${CMAKE_VERSION}" VERSION_LESS "3.2")
-      message(
-          FATAL_ERROR
+      hunter_gate_fatal_error(
           "Can't lock, upgrade to CMake 3.2 or use HUNTER_SKIP_LOCK"
+          WIKI "error.can.not.lock"
       )
     endif()
     file(LOCK "${dir}" DIRECTORY GUARD FUNCTION)
@@ -153,17 +157,17 @@ endmacro()
 function(hunter_gate_download dir)
   string(COMPARE EQUAL "${dir}" "" is_bad)
   if(is_bad)
-    message(FATAL_ERROR "Internal error: empty 'dir' argument")
+    hunter_gate_internal_error("Empty 'dir' argument")
   endif()
 
   string(COMPARE EQUAL "${HUNTER_GATE_SHA1}" "" is_bad)
   if(is_bad)
-    message(FATAL_ERROR "Internal error: HUNTER_GATE_SHA1 empty")
+    hunter_gate_internal_error("HUNTER_GATE_SHA1 empty")
   endif()
 
   string(COMPARE EQUAL "${HUNTER_GATE_URL}" "" is_bad)
   if(is_bad)
-    message(FATAL_ERROR "Internal error: HUNTER_GATE_URL empty")
+    hunter_gate_internal_error("HUNTER_GATE_URL empty")
   endif()
 
   set(done_location "${dir}/DONE")
@@ -219,7 +223,7 @@ function(hunter_gate_download dir)
   )
 
   if(NOT download_result EQUAL 0)
-    message(FATAL_ERROR "Configure project failed")
+    hunter_gate_internal_error("Configure project failed")
   endif()
 
   execute_process(
@@ -230,7 +234,7 @@ function(hunter_gate_download dir)
   )
 
   if(NOT download_result EQUAL 0)
-    message(FATAL_ERROR "Build project failed")
+    hunter_gate_internal_error("Build project failed")
   endif()
 
   file(REMOVE_RECURSE "${build_dir}")
@@ -256,46 +260,48 @@ function(HunterGate)
   set_property(GLOBAL PROPERTY HUNTER_GATE_DONE YES)
 
   if(PROJECT_NAME)
-    message(FATAL_ERROR "Please set HunterGate *before* 'project' command")
+    hunter_gate_fatal_error(
+        "Please set HunterGate *before* 'project' command"
+        WIKI "error.huntergate.before.project"
+    )
   endif()
 
   cmake_parse_arguments(
       HUNTER_GATE "LOCAL" "URL;SHA1;GLOBAL;FILEPATH" "" ${ARGV}
   )
   if(NOT HUNTER_GATE_SHA1)
-    message(FATAL_ERROR "SHA1 suboption of HunterGate is mandatory")
+    hunter_gate_user_error("SHA1 suboption of HunterGate is mandatory")
   endif()
   if(NOT HUNTER_GATE_URL)
-    message(FATAL_ERROR "URL suboption of HunterGate is mandatory")
+    hunter_gate_user_error("URL suboption of HunterGate is mandatory")
   endif()
   if(HUNTER_GATE_UNPARSED_ARGUMENTS)
-    message(
-        FATAL_ERROR
+    hunter_gate_user_error(
         "HunterGate unparsed arguments: ${HUNTER_GATE_UNPARSED_ARGUMENTS}"
     )
   endif()
   if(HUNTER_GATE_GLOBAL)
     if(HUNTER_GATE_LOCAL)
-      message(FATAL_ERROR "Unexpected LOCAL (already has GLOBAL)")
+      hunter_gate_user_error("Unexpected LOCAL (already has GLOBAL)")
     endif()
     if(HUNTER_GATE_FILEPATH)
-      message(FATAL_ERROR "Unexpected FILEPATH (already has GLOBAL)")
+      hunter_gate_user_error("Unexpected FILEPATH (already has GLOBAL)")
     endif()
   endif()
   if(HUNTER_GATE_LOCAL)
     if(HUNTER_GATE_GLOBAL)
-      message(FATAL_ERROR "Unexpected GLOBAL (already has LOCAL)")
+      hunter_gate_user_error("Unexpected GLOBAL (already has LOCAL)")
     endif()
     if(HUNTER_GATE_FILEPATH)
-      message(FATAL_ERROR "Unexpected FILEPATH (already has LOCAL)")
+      hunter_gate_user_error("Unexpected FILEPATH (already has LOCAL)")
     endif()
   endif()
   if(HUNTER_GATE_FILEPATH)
     if(HUNTER_GATE_GLOBAL)
-      message(FATAL_ERROR "Unexpected GLOBAL (already has FILEPATH)")
+      hunter_gate_user_error("Unexpected GLOBAL (already has FILEPATH)")
     endif()
     if(HUNTER_GATE_LOCAL)
-      message(FATAL_ERROR "Unexpected LOCAL (already has FILEPATH)")
+      hunter_gate_user_error("Unexpected LOCAL (already has FILEPATH)")
     endif()
   endif()
 
@@ -342,25 +348,23 @@ function(HunterGate)
   endif()
 
   if(NOT EXISTS "${done_location}")
-    message(FATAL_ERROR "Internal error: hunter_gate_download failed")
+    hunter_gate_internal_error("hunter_gate_download failed")
   endif()
 
   if(NOT EXISTS "${sha1_location}")
-    message(FATAL_ERROR "${sha1_location} not found")
+    hunter_gate_internal_error("${sha1_location} not found")
   endif()
   file(READ "${sha1_location}" sha1_value)
   string(COMPARE EQUAL "${sha1_value}" "${HUNTER_GATE_SHA1}" is_equal)
   if(NOT is_equal)
-    message(
-        FATAL_ERROR
+    hunter_gate_internal_error(
         "Short SHA1 collision:\n"
         "  ${sha1_value} (from ${sha1_location})\n"
         "  ${HUNTER_GATE_SHA1} (HunterGate)"
     )
   endif()
   if(NOT EXISTS "${master_location}")
-    message(
-        FATAL_ERROR
+    hunter_gate_user_error(
         "Master file not found: ${master_location}\n"
         "(try to update Hunter/HunterGate)"
     )
