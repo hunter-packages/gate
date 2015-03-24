@@ -171,6 +171,13 @@ macro(hunter_gate_lock dir)
 endmacro()
 
 function(hunter_gate_download dir)
+  if(NOT HUNTER_RUN_INSTALL)
+    hunter_gate_fatal_error(
+        "Hunter not found in '${HUNTER_CACHED_ROOT_NEW}'"
+        "Set HUNTER_RUN_INSTALL=ON to auto-install it from '${HUNTER_GATE_URL}'"
+        WIKI "error.run.install"
+    )
+  endif()
   string(COMPARE EQUAL "${dir}" "" is_bad)
   if(is_bad)
     hunter_gate_internal_error("Empty 'dir' argument")
