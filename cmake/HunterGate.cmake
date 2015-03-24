@@ -95,12 +95,11 @@ function(hunter_gate_fatal_error)
 endfunction()
 
 # Set HUNTER_CACHED_ROOT_NEW cmake variable to suitable value.
-# Info about variable can be found in HUNTER_ROOT_INFO.
 function(hunter_gate_detect_root)
   # Check CMake variable
   if(HUNTER_ROOT)
     set(HUNTER_CACHED_ROOT_NEW "${HUNTER_ROOT}" PARENT_SCOPE)
-    set(HUNTER_ROOT_INFO "HUNTER_ROOT detected by cmake variable" PARENT_SCOPE)
+    hunter_gate_status_debug("HUNTER_ROOT detected by cmake variable")
     return()
   endif()
 
@@ -108,11 +107,7 @@ function(hunter_gate_detect_root)
   string(COMPARE NOTEQUAL "$ENV{HUNTER_ROOT}" "" not_empty)
   if(not_empty)
     set(HUNTER_CACHED_ROOT_NEW "$ENV{HUNTER_ROOT}" PARENT_SCOPE)
-    set(
-        HUNTER_ROOT_INFO
-        "HUNTER_ROOT detected by environment variable"
-        PARENT_SCOPE
-    )
+    hunter_gate_status_debug("HUNTER_ROOT detected by environment variable")
     return()
   endif()
 
@@ -120,11 +115,7 @@ function(hunter_gate_detect_root)
   string(COMPARE NOTEQUAL "$ENV{HOME}" "" result)
   if(result)
     set(HUNTER_CACHED_ROOT_NEW "$ENV{HOME}/HunterPackages" PARENT_SCOPE)
-    set(
-        HUNTER_ROOT_INFO
-        "HUNTER_ROOT set using HOME environment variable"
-        PARENT_SCOPE
-    )
+    hunter_gate_status_debug("HUNTER_ROOT set using HOME environment variable")
     return()
   endif()
 
@@ -137,10 +128,8 @@ function(hunter_gate_detect_root)
           "$ENV{PROGRAMFILES}/HunterPackages"
           PARENT_SCOPE
       )
-      set(
-          HUNTER_ROOT_INFO
+      hunter_gate_status_debug(
           "HUNTER_ROOT set using PROGRAMFILES environment variable"
-          PARENT_SCOPE
       )
       return()
     endif()
@@ -310,7 +299,7 @@ function(HunterGate)
     endif()
   endif()
 
-  hunter_gate_detect_root() # set HUNTER_CACHED_ROOT_NEW and HUNTER_ROOT_INFO
+  hunter_gate_detect_root() # set HUNTER_CACHED_ROOT_NEW
 
   # Beautify path, fix probable problems with windows path slashes
   get_filename_component(
