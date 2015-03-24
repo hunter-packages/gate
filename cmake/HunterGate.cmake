@@ -348,6 +348,13 @@ function(HunterGate)
       HUNTER_CACHED_ROOT_NEW "${HUNTER_CACHED_ROOT_NEW}" ABSOLUTE
   )
   hunter_gate_status_debug("HUNTER_ROOT: ${HUNTER_CACHED_ROOT_NEW}")
+  string(FIND "${HUNTER_CACHED_ROOT_NEW}" " " contain_spaces)
+  if(NOT contain_spaces EQUAL -1)
+    hunter_gate_fatal_error(
+        "HUNTER_ROOT (${HUNTER_CACHED_ROOT_NEW}) contains spaces"
+        WIKI "error.spaces.in.hunter.root"
+    )
+  endif()
 
   set(master_location "${HUNTER_CACHED_ROOT_NEW}/cmake/Hunter")
   if(EXISTS "${master_location}")
