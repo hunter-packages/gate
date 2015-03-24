@@ -213,6 +213,12 @@ function(hunter_gate_download dir)
       ")\n"
   )
 
+  if(HUNTER_STATUS_DEBUG)
+    set(logging_params "")
+  else()
+    set(logging_params OUTPUT_QUIET)
+  endif()
+
   execute_process(
       COMMAND
           "${CMAKE_COMMAND}"
@@ -220,17 +226,22 @@ function(hunter_gate_download dir)
           "-B${build_dir}"
       WORKING_DIRECTORY "${dir}"
       RESULT_VARIABLE download_result
+      ${logging_params}
   )
 
   if(NOT download_result EQUAL 0)
     hunter_gate_internal_error("Configure project failed")
   endif()
 
+  hunter_gate_status_print(
+      "Downloading/unpacking ${HUNTER_GATE_URL}"
+  )
   execute_process(
       COMMAND
       "${CMAKE_COMMAND}" --build "${build_dir}"
       WORKING_DIRECTORY "${dir}"
       RESULT_VARIABLE download_result
+      ${logging_params}
   )
 
   if(NOT download_result EQUAL 0)
