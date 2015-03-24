@@ -41,6 +41,58 @@ cmake_minimum_required(VERSION 3.0) # Minimum for Hunter
 include(CMakeParseArguments) # cmake_parse_arguments
 
 option(HUNTER_ENABLED "Enable Hunter package manager support" ON)
+option(HUNTER_STATUS_PRINT "Print working status" ON)
+option(HUNTER_STATUS_DEBUG "Print a lot info" OFF)
+
+set(HUNTER_WIKI "https://github.com/ruslo/hunter/wiki")
+
+function(hunter_gate_status_print)
+  foreach(print_message ${ARGV})
+    if(HUNTER_STATUS_PRINT OR HUNTER_STATUS_DEBUG)
+      message(STATUS "[hunter] ${print_message}")
+    endif()
+  endforeach()
+endfunction()
+
+function(hunter_gate_status_debug)
+  foreach(print_message ${ARGV})
+    if(HUNTER_STATUS_DEBUG)
+      message(STATUS "[hunter *** DEBUG ***] ${print_message}")
+    endif()
+  endforeach()
+endfunction()
+
+function(hunter_gate_wiki wiki_page)
+  message("------------------------------ WIKI -------------------------------")
+  message("    ${HUNTER_WIKI}/${wiki_page}")
+  message("-------------------------------------------------------------------")
+  message("")
+  message(FATAL_ERROR "")
+endfunction()
+
+function(hunter_gate_internal_error)
+  message("")
+  foreach(print_message ${ARGV})
+    message("[hunter ** INTERNAL **] ${print_message}")
+  endforeach()
+  message("[hunter ** INTERNAL **] [Directory:${CMAKE_CURRENT_LIST_DIR}]")
+  message("")
+  hunter_gate_wiki("error.internal")
+endfunction()
+
+function(hunter_gate_fatal_error)
+  cmake_parse_arguments(hunter "" "WIKI" "" "${ARGV}")
+  if(NOT hunter_WIKI)
+    hunter_gate_internal_error("Expected wiki")
+  endif()
+  message("")
+  foreach(x ${hunter_UNPARSED_ARGUMENTS})
+    message("[hunter ** FATAL ERROR **] ${x}")
+  endforeach()
+  message("[hunter ** FATAL ERROR **] [Directory:${CMAKE_CURRENT_LIST_DIR}]")
+  message("")
+  hunter_gate_wiki("${hunter_WIKI}")
+endfunction()
 
 # Set HUNTER_CACHED_ROOT_NEW cmake variable to suitable value.
 # Info about variable can be found in HUNTER_ROOT_INFO.
