@@ -332,6 +332,7 @@ function(HunterGate)
     return()
   endif()
   set_property(GLOBAL PROPERTY HUNTER_GATE_DONE YES)
+  set(HUNTER_GATE_LOCATION "${CMAKE_CURRENT_LIST_DIR}")
 
   if(PROJECT_NAME)
     hunter_gate_fatal_error(
