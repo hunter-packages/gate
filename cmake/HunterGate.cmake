@@ -193,10 +193,6 @@ function(hunter_gate_download dir)
 
   set(build_dir "${dir}/Build")
   set(cmakelists "${dir}/CMakeLists.txt")
-  file(REMOVE_RECURSE "${build_dir}")
-  file(REMOVE_RECURSE "${cmakelists}")
-
-  file(MAKE_DIRECTORY "${build_dir}") # check directory permissions
 
   hunter_gate_lock("${dir}")
   if(EXISTS "${done_location}")
@@ -204,6 +200,11 @@ function(hunter_gate_download dir)
     hunter_gate_status_debug("File '${done_location}' found, skip install")
     return()
   endif()
+
+  file(REMOVE_RECURSE "${build_dir}")
+  file(REMOVE_RECURSE "${cmakelists}")
+
+  file(MAKE_DIRECTORY "${build_dir}") # check directory permissions
 
   # Disabling languages speeds up a little bit, reduces noise in the output
   # and avoids path too long windows error
