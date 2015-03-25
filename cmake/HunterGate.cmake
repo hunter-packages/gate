@@ -99,6 +99,27 @@ function(hunter_gate_user_error)
   hunter_gate_fatal_error(${ARGV} WIKI "error.incorrect.input.data")
 endfunction()
 
+function(hunter_gate_calc_location root version sha1 result)
+  string(COMPARE EQUAL "${root}" "" is_bad)
+  if(is_bad)
+    hunter_gate_internal_error("root is empty")
+  endif()
+
+  string(COMPARE EQUAL "${version}" "" is_bad)
+  if(is_bad)
+    hunter_gate_internal_error("version is empty")
+  endif()
+
+  string(COMPARE EQUAL "${sha1}" "" is_bad)
+  if(is_bad)
+    hunter_gate_internal_error("sha1 is empty")
+  endif()
+
+  string(SUBSTRING "${sha1}" 0 7 archive_id)
+  set(location "${root}/_Base/Download/Hunter/${version}/${archive_id}")
+  set("${result}" "${location}" PARENT_SCOPE)
+endfunction()
+
 # Set HUNTER_GATE_ROOT cmake variable to suitable value.
 function(hunter_gate_detect_root)
   # Check CMake variable
