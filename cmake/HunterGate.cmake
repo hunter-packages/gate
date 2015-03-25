@@ -310,150 +310,150 @@ function(hunter_gate_download dir)
   hunter_gate_status_debug("Finished")
 endfunction()
 
-function(HunterGate)
+# Must be a macro so master file 'cmake/Hunter' can
+# apply all variables easily just by 'include' command
+# (otherwise PARENT_SCOPE magic needed)
+macro(HunterGate)
+  # First HunterGate command will init Hunter, others will be ignored
+  get_property(_hunter_gate_done GLOBAL PROPERTY HUNTER_GATE_DONE SET)
+
   if(NOT HUNTER_ENABLED)
     # Empty function to avoid error "unknown function"
     function(hunter_add_package)
     endfunction()
-    return()
-  endif()
-
-  # First HunterGate command will init Hunter, others will be ignored
-  get_property(hunter_gate_done GLOBAL PROPERTY HUNTER_GATE_DONE SET)
-  if(hunter_gate_done)
+  elseif(_hunter_gate_done)
     hunter_gate_status_debug("Secondary HunterGate (use old settings)")
     hunter_gate_self(
         "${HUNTER_CACHED_ROOT}"
         "${HUNTER_VERSION}"
         "${HUNTER_SHA1}"
-        hunter_self
+        _hunter_self
     )
-    include("${hunter_self}/cmake/Hunter")
-    return()
-  endif()
-  set_property(GLOBAL PROPERTY HUNTER_GATE_DONE YES)
-  set(HUNTER_GATE_LOCATION "${CMAKE_CURRENT_LIST_DIR}")
+    include("${_hunter_self}/cmake/Hunter")
+  else()
+    set_property(GLOBAL PROPERTY HUNTER_GATE_DONE YES)
+    set(HUNTER_GATE_LOCATION "${CMAKE_CURRENT_LIST_DIR}")
 
-  if(PROJECT_NAME)
-    hunter_gate_fatal_error(
-        "Please set HunterGate *before* 'project' command"
-        WIKI "error.huntergate.before.project"
-    )
-  endif()
+    if(PROJECT_NAME)
+      hunter_gate_fatal_error(
+          "Please set HunterGate *before* 'project' command"
+          WIKI "error.huntergate.before.project"
+      )
+    endif()
 
-  cmake_parse_arguments(
-      HUNTER_GATE "LOCAL" "URL;SHA1;GLOBAL;FILEPATH" "" ${ARGV}
-  )
-  if(NOT HUNTER_GATE_SHA1)
-    hunter_gate_user_error("SHA1 suboption of HunterGate is mandatory")
-  endif()
-  if(NOT HUNTER_GATE_URL)
-    hunter_gate_user_error("URL suboption of HunterGate is mandatory")
-  endif()
-  if(HUNTER_GATE_UNPARSED_ARGUMENTS)
-    hunter_gate_user_error(
-        "HunterGate unparsed arguments: ${HUNTER_GATE_UNPARSED_ARGUMENTS}"
+    cmake_parse_arguments(
+        HUNTER_GATE "LOCAL" "URL;SHA1;GLOBAL;FILEPATH" "" ${ARGV}
     )
-  endif()
-  if(HUNTER_GATE_GLOBAL)
-    if(HUNTER_GATE_LOCAL)
-      hunter_gate_user_error("Unexpected LOCAL (already has GLOBAL)")
+    if(NOT HUNTER_GATE_SHA1)
+      hunter_gate_user_error("SHA1 suboption of HunterGate is mandatory")
     endif()
-    if(HUNTER_GATE_FILEPATH)
-      hunter_gate_user_error("Unexpected FILEPATH (already has GLOBAL)")
+    if(NOT HUNTER_GATE_URL)
+      hunter_gate_user_error("URL suboption of HunterGate is mandatory")
     endif()
-  endif()
-  if(HUNTER_GATE_LOCAL)
+    if(HUNTER_GATE_UNPARSED_ARGUMENTS)
+      hunter_gate_user_error(
+          "HunterGate unparsed arguments: ${HUNTER_GATE_UNPARSED_ARGUMENTS}"
+      )
+    endif()
     if(HUNTER_GATE_GLOBAL)
-      hunter_gate_user_error("Unexpected GLOBAL (already has LOCAL)")
-    endif()
-    if(HUNTER_GATE_FILEPATH)
-      hunter_gate_user_error("Unexpected FILEPATH (already has LOCAL)")
-    endif()
-  endif()
-  if(HUNTER_GATE_FILEPATH)
-    if(HUNTER_GATE_GLOBAL)
-      hunter_gate_user_error("Unexpected GLOBAL (already has FILEPATH)")
+      if(HUNTER_GATE_LOCAL)
+        hunter_gate_user_error("Unexpected LOCAL (already has GLOBAL)")
+      endif()
+      if(HUNTER_GATE_FILEPATH)
+        hunter_gate_user_error("Unexpected FILEPATH (already has GLOBAL)")
+      endif()
     endif()
     if(HUNTER_GATE_LOCAL)
-      hunter_gate_user_error("Unexpected LOCAL (already has FILEPATH)")
+      if(HUNTER_GATE_GLOBAL)
+        hunter_gate_user_error("Unexpected GLOBAL (already has LOCAL)")
+      endif()
+      if(HUNTER_GATE_FILEPATH)
+        hunter_gate_user_error("Unexpected FILEPATH (already has LOCAL)")
+      endif()
+    endif()
+    if(HUNTER_GATE_FILEPATH)
+      if(HUNTER_GATE_GLOBAL)
+        hunter_gate_user_error("Unexpected GLOBAL (already has FILEPATH)")
+      endif()
+      if(HUNTER_GATE_LOCAL)
+        hunter_gate_user_error("Unexpected LOCAL (already has FILEPATH)")
+      endif()
+    endif()
+
+    hunter_gate_detect_root() # set HUNTER_GATE_ROOT
+
+    # Beautify path, fix probable problems with windows path slashes
+    get_filename_component(
+        HUNTER_GATE_ROOT "${HUNTER_GATE_ROOT}" ABSOLUTE
+    )
+    hunter_gate_status_debug("HUNTER_ROOT: ${HUNTER_GATE_ROOT}")
+    string(FIND "${HUNTER_GATE_ROOT}" " " contain_spaces_)
+    if(NOT contain_spaces_ EQUAL -1)
+      hunter_gate_fatal_error(
+          "HUNTER_ROOT (${HUNTER_GATE_ROOT}) contains spaces"
+          WIKI "error.spaces.in.hunter.root"
+      )
+    endif()
+
+    string(
+        REGEX
+        MATCH
+        "[0-9]+\\.[0-9]+\\.[0-9]+[-_a-z0-9]*"
+        HUNTER_GATE_VERSION
+        "${HUNTER_GATE_URL}"
+    )
+    string(COMPARE EQUAL "${HUNTER_GATE_VERSION}" "" _is_empty)
+    if(_is_empty)
+      set(HUNTER_GATE_VERSION "unknown")
+    endif()
+
+    hunter_gate_self(
+        "${HUNTER_GATE_ROOT}"
+        "${HUNTER_GATE_VERSION}"
+        "${HUNTER_GATE_SHA1}"
+        hunter_self_
+    )
+
+    set(_master_location "${hunter_self_}/cmake/Hunter")
+    if(EXISTS "${_master_location}")
+      # Hunter downloaded manually (e.g. 'git clone')
+      set(_unused "xxxxxxxxxx")
+      set(HUNTER_GATE_SHA1 "${_unused}")
+      set(HUNTER_GATE_VERSION "${_unused}")
+      include("${_master_location}")
+    else()
+      get_filename_component(_archive_id_location "${hunter_self_}/.." ABSOLUTE)
+      set(_done_location "${_archive_id_location}/DONE")
+      set(_sha1_location "${_archive_id_location}/SHA1")
+
+      if(NOT EXISTS "${_done_location}")
+        hunter_gate_download("${_archive_id_location}")
+      endif()
+
+      if(NOT EXISTS "${_done_location}")
+        hunter_gate_internal_error("hunter_gate_download failed")
+      endif()
+
+      if(NOT EXISTS "${_sha1_location}")
+        hunter_gate_internal_error("${_sha1_location} not found")
+      endif()
+      file(READ "${_sha1_location}" _sha1_value)
+      string(COMPARE EQUAL "${_sha1_value}" "${HUNTER_GATE_SHA1}" _is_equal)
+      if(NOT _is_equal)
+        hunter_gate_internal_error(
+            "Short SHA1 collision:"
+            "  ${_sha1_value} (from ${_sha1_location})"
+            "  ${HUNTER_GATE_SHA1} (HunterGate)"
+        )
+      endif()
+      if(NOT EXISTS "${_master_location}")
+        hunter_gate_user_error(
+            "Master file not found:"
+            "  ${_master_location}"
+            "try to update Hunter/HunterGate"
+        )
+      endif()
+      include("${_master_location}")
     endif()
   endif()
-
-  hunter_gate_detect_root() # set HUNTER_GATE_ROOT
-
-  # Beautify path, fix probable problems with windows path slashes
-  get_filename_component(
-      HUNTER_GATE_ROOT "${HUNTER_GATE_ROOT}" ABSOLUTE
-  )
-  hunter_gate_status_debug("HUNTER_ROOT: ${HUNTER_GATE_ROOT}")
-  string(FIND "${HUNTER_GATE_ROOT}" " " contain_spaces)
-  if(NOT contain_spaces EQUAL -1)
-    hunter_gate_fatal_error(
-        "HUNTER_ROOT (${HUNTER_GATE_ROOT}) contains spaces"
-        WIKI "error.spaces.in.hunter.root"
-    )
-  endif()
-
-  string(
-      REGEX
-      MATCH
-      "[0-9]+\\.[0-9]+\\.[0-9]+[-_a-z0-9]*"
-      HUNTER_GATE_VERSION
-      "${HUNTER_GATE_URL}"
-  )
-  string(COMPARE EQUAL "${HUNTER_GATE_VERSION}" "" is_empty)
-  if(is_empty)
-    set(HUNTER_GATE_VERSION "unknown")
-  endif()
-
-  hunter_gate_self(
-      "${HUNTER_GATE_ROOT}"
-      "${HUNTER_GATE_VERSION}"
-      "${HUNTER_GATE_SHA1}"
-      hunter_self
-  )
-
-  set(master_location "${hunter_self}/cmake/Hunter")
-  if(EXISTS "${master_location}")
-    # Hunter downloaded manually (e.g. 'git clone')
-    set(unused "xxxxxxxxxx")
-    set(HUNTER_GATE_SHA1 "${unused}")
-    set(HUNTER_GATE_VERSION "${unused}")
-    include("${master_location}")
-    return()
-  endif()
-
-  get_filename_component(archive_id_location "${hunter_self}/.." ABSOLUTE)
-  set(done_location "${archive_id_location}/DONE")
-  set(sha1_location "${archive_id_location}/SHA1")
-
-  if(NOT EXISTS "${done_location}")
-    hunter_gate_download("${archive_id_location}")
-  endif()
-
-  if(NOT EXISTS "${done_location}")
-    hunter_gate_internal_error("hunter_gate_download failed")
-  endif()
-
-  if(NOT EXISTS "${sha1_location}")
-    hunter_gate_internal_error("${sha1_location} not found")
-  endif()
-  file(READ "${sha1_location}" sha1_value)
-  string(COMPARE EQUAL "${sha1_value}" "${HUNTER_GATE_SHA1}" is_equal)
-  if(NOT is_equal)
-    hunter_gate_internal_error(
-        "Short SHA1 collision:"
-        "  ${sha1_value} (from ${sha1_location})"
-        "  ${HUNTER_GATE_SHA1} (HunterGate)"
-    )
-  endif()
-  if(NOT EXISTS "${master_location}")
-    hunter_gate_user_error(
-        "Master file not found:"
-        "  ${master_location}"
-        "try to update Hunter/HunterGate"
-    )
-  endif()
-  include("${master_location}")
-endfunction()
+endmacro()
