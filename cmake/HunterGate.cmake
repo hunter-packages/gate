@@ -118,15 +118,15 @@ function(hunter_gate_self root version sha1 result)
   string(SUBSTRING "${sha1}" 0 7 archive_id)
 
   if(EXISTS "${root}/cmake/Hunter")
-    set(HUNTER_SELF "${root}")
+    set(hunter_self "${root}")
   else()
     set(
-        HUNTER_SELF
+        hunter_self
         "${root}/_Base/Download/Hunter/${version}/${archive_id}/Unpacked"
     )
   endif()
 
-  set("${result}" "${HUNTER_SELF}" PARENT_SCOPE)
+  set("${result}" "${hunter_self}" PARENT_SCOPE)
 endfunction()
 
 # Set HUNTER_GATE_ROOT cmake variable to suitable value.
@@ -321,14 +321,14 @@ function(HunterGate)
   # First HunterGate command will init Hunter, others will be ignored
   get_property(hunter_gate_done GLOBAL PROPERTY HUNTER_GATE_DONE SET)
   if(hunter_gate_done)
-    hunter_status_debug("Secondary HunterGate (use old settings)")
+    hunter_gate_status_debug("Secondary HunterGate (use old settings)")
     hunter_gate_self(
         "${HUNTER_CACHED_ROOT}"
         "${HUNTER_VERSION}"
         "${HUNTER_SHA1}"
-        HUNTER_SELF
+        hunter_self
     )
-    include("${HUNTER_SELF}/cmake/Hunter")
+    include("${hunter_self}/cmake/Hunter")
     return()
   endif()
   set_property(GLOBAL PROPERTY HUNTER_GATE_DONE YES)
@@ -411,17 +411,20 @@ function(HunterGate)
       "${HUNTER_GATE_ROOT}"
       "${HUNTER_GATE_VERSION}"
       "${HUNTER_GATE_SHA1}"
-      HUNTER_SELF
+      hunter_self
   )
 
-  set(master_location "${HUNTER_SELF}/cmake/Hunter")
+  set(master_location "${hunter_self}/cmake/Hunter")
   if(EXISTS "${master_location}")
     # Hunter downloaded manually (e.g. 'git clone')
+    set(unused "xxxxxxxxxx")
+    set(HUNTER_GATE_SHA1 "${unused}")
+    set(HUNTER_GATE_VERSION "${unused}")
     include("${master_location}")
     return()
   endif()
 
-  get_filename_component(archive_id_location "${HUNTER_SELF}/.." ABSOLUTE)
+  get_filename_component(archive_id_location "${hunter_self}/.." ABSOLUTE)
   set(done_location "${archive_id_location}/DONE")
   set(sha1_location "${archive_id_location}/SHA1")
 
