@@ -99,7 +99,7 @@ function(hunter_gate_user_error)
   hunter_gate_fatal_error(${ARGV} WIKI "error.incorrect.input.data")
 endfunction()
 
-function(hunter_gate_calc_location root version sha1 result)
+function(hunter_gate_self root version sha1 result)
   string(COMPARE EQUAL "${root}" "" is_bad)
   if(is_bad)
     hunter_gate_internal_error("root is empty")
@@ -118,15 +118,15 @@ function(hunter_gate_calc_location root version sha1 result)
   string(SUBSTRING "${sha1}" 0 7 archive_id)
 
   if(EXISTS "${root}/cmake/Hunter")
-    set(location "${root}")
+    set(HUNTER_SELF "${root}")
   else()
     set(
-        location
+        HUNTER_SELF
         "${root}/_Base/Download/Hunter/${version}/${archive_id}/Unpacked"
     )
   endif()
 
-  set("${result}" "${location}" PARENT_SCOPE)
+  set("${result}" "${HUNTER_SELF}" PARENT_SCOPE)
 endfunction()
 
 # Set HUNTER_GATE_ROOT cmake variable to suitable value.
@@ -322,13 +322,13 @@ function(HunterGate)
   get_property(hunter_gate_done GLOBAL PROPERTY HUNTER_GATE_DONE SET)
   if(hunter_gate_done)
     hunter_status_debug("Secondary HunterGate (use old settings)")
-    hunter_gate_calc_location(
+    hunter_gate_self(
         "${HUNTER_CACHED_ROOT}"
         "${HUNTER_VERSION}"
         "${HUNTER_SHA1}"
-        location
+        HUNTER_SELF
     )
-    include("${location}/cmake/Hunter")
+    include("${HUNTER_SELF}/cmake/Hunter")
     return()
   endif()
   set_property(GLOBAL PROPERTY HUNTER_GATE_DONE YES)
@@ -407,21 +407,21 @@ function(HunterGate)
     set(HUNTER_GATE_VERSION "unknown")
   endif()
 
-  hunter_gate_calc_location(
+  hunter_gate_self(
       "${HUNTER_GATE_ROOT}"
       "${HUNTER_GATE_VERSION}"
       "${HUNTER_GATE_SHA1}"
-      location
+      HUNTER_SELF
   )
 
-  set(master_location "${location}/cmake/Hunter")
+  set(master_location "${HUNTER_SELF}/cmake/Hunter")
   if(EXISTS "${master_location}")
     # Hunter downloaded manually (e.g. 'git clone')
     include("${master_location}")
     return()
   endif()
 
-  get_filename_component(archive_id_location "${location}/.." ABSOLUTE)
+  get_filename_component(archive_id_location "${HUNTER_SELF}/.." ABSOLUTE)
   set(done_location "${archive_id_location}/DONE")
   set(sha1_location "${archive_id_location}/SHA1")
 
