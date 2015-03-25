@@ -159,7 +159,9 @@ macro(hunter_gate_lock dir)
           WIKI "error.can.not.lock"
       )
     endif()
+    hunter_gate_status_debug("Locking directory: ${dir}")
     file(LOCK "${dir}" DIRECTORY GUARD FUNCTION)
+    hunter_gate_status_debug("Lock done")
   endif()
 endmacro()
 
@@ -199,6 +201,7 @@ function(hunter_gate_download dir)
   hunter_gate_lock("${dir}")
   if(EXISTS "${done_location}")
     # while waiting for lock other instance can do all the job
+    hunter_gate_status_debug("File '${done_location}' found, skip install")
     return()
   endif()
 
@@ -235,6 +238,7 @@ function(hunter_gate_download dir)
     set(logging_params OUTPUT_QUIET)
   endif()
 
+  hunter_gate_status_debug("Run generate")
   execute_process(
       COMMAND
           "${CMAKE_COMMAND}"
@@ -271,6 +275,8 @@ function(hunter_gate_download dir)
 
   file(WRITE "${sha1_location}" "${HUNTER_GATE_SHA1}")
   file(WRITE "${done_location}" "DONE")
+
+  hunter_gate_status_debug("Finished")
 endfunction()
 
 function(HunterGate)
