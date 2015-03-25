@@ -116,7 +116,16 @@ function(hunter_gate_calc_location root version sha1 result)
   endif()
 
   string(SUBSTRING "${sha1}" 0 7 archive_id)
-  set(location "${root}/_Base/Download/Hunter/${version}/${archive_id}")
+
+  if(EXISTS "${root}/cmake/Hunter")
+    set(location "${root}")
+  else()
+    set(
+        location
+        "${root}/_Base/Download/Hunter/${version}/${archive_id}/Unpacked"
+    )
+  endif()
+
   set("${result}" "${location}" PARENT_SCOPE)
 endfunction()
 
@@ -312,6 +321,14 @@ function(HunterGate)
   # First HunterGate command will init Hunter, others will be ignored
   get_property(hunter_gate_done GLOBAL PROPERTY HUNTER_GATE_DONE SET)
   if(hunter_gate_done)
+    hunter_status_debug("Secondary HunterGate (use old settings)")
+    hunter_gate_calc_location(
+        "${HUNTER_CACHED_ROOT}"
+        "${HUNTER_VERSION}"
+        "${HUNTER_SHA1}"
+        location
+    )
+    include("${location}/cmake/Hunter")
     return()
   endif()
   set_property(GLOBAL PROPERTY HUNTER_GATE_DONE YES)
@@ -389,24 +406,23 @@ function(HunterGate)
     set(HUNTER_GATE_VERSION "unknown")
   endif()
 
-  set(master_location "${HUNTER_GATE_ROOT}/cmake/Hunter")
+  hunter_gate_calc_location(
+      "${HUNTER_GATE_ROOT}"
+      "${HUNTER_GATE_VERSION}"
+      "${HUNTER_GATE_SHA1}"
+      location
+  )
+
+  set(master_location "${location}/cmake/Hunter")
   if(EXISTS "${master_location}")
     # Hunter downloaded manually (e.g. 'git clone')
     include("${master_location}")
     return()
   endif()
 
-  set(
-      archive_id_location
-      "${HUNTER_GATE_ROOT}/_Base/Download/Hunter/${HUNTER_GATE_VERSION}"
-  )
-
-  string(SUBSTRING "${HUNTER_GATE_SHA1}" 0 7 ARCHIVE_ID)
-  set(archive_id_location "${archive_id_location}/${ARCHIVE_ID}")
-
+  get_filename_component(archive_id_location "${location}/.." ABSOLUTE)
   set(done_location "${archive_id_location}/DONE")
   set(sha1_location "${archive_id_location}/SHA1")
-  set(master_location "${archive_id_location}/Unpacked/cmake/Hunter")
 
   if(NOT EXISTS "${done_location}")
     hunter_gate_download("${archive_id_location}")
