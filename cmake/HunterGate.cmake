@@ -271,10 +271,7 @@ function(hunter_gate_download dir)
 
   hunter_gate_status_debug("Run generate")
   execute_process(
-      COMMAND
-          "${CMAKE_COMMAND}"
-          "-H${dir}"
-          "-B${build_dir}"
+      COMMAND "${CMAKE_COMMAND}" "-H${dir}" "-B${build_dir}"
       WORKING_DIRECTORY "${dir}"
       RESULT_VARIABLE download_result
       ${logging_params}
@@ -290,8 +287,7 @@ function(hunter_gate_download dir)
       "  -> ${dir}"
   )
   execute_process(
-      COMMAND
-      "${CMAKE_COMMAND}" --build "${build_dir}"
+      COMMAND "${CMAKE_COMMAND}" --build "${build_dir}"
       WORKING_DIRECTORY "${dir}"
       RESULT_VARIABLE download_result
       ${logging_params}
@@ -387,8 +383,8 @@ macro(HunterGate)
         HUNTER_GATE_ROOT "${HUNTER_GATE_ROOT}" ABSOLUTE
     )
     hunter_gate_status_debug("HUNTER_ROOT: ${HUNTER_GATE_ROOT}")
-    string(FIND "${HUNTER_GATE_ROOT}" " " contain_spaces_)
-    if(NOT contain_spaces_ EQUAL -1)
+    string(FIND "${HUNTER_GATE_ROOT}" " " _contain_spaces)
+    if(NOT _contain_spaces EQUAL -1)
       hunter_gate_fatal_error(
           "HUNTER_ROOT (${HUNTER_GATE_ROOT}) contains spaces"
           WIKI "error.spaces.in.hunter.root"
