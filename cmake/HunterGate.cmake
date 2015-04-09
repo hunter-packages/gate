@@ -23,13 +23,18 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # This is a gate file to Hunter package manager.
-# Usage: include this file using `include` command and add package you need:
+# Include this file using `include` command and add package you need, example:
+#
+#     cmake_minimum_required(VERSION 3.0)
 #
 #     include("cmake/HunterGate.cmake")
 #     HunterGate(
 #         URL "https://github.com/path/to/hunter/archive.tar.gz"
 #         SHA1 "798501e983f14b28b10cda16afa4de69eee1da1d"
 #     )
+#
+#     project(MyProject)
+#
 #     hunter_add_package(Foo)
 #     hunter_add_package(Boo COMPONENTS Bar Baz)
 #
