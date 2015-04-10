@@ -76,5 +76,5 @@ HunterGate(
 * [Hunter](https://github.com/ruslo/hunter)
 * [Some packages](https://github.com/ruslo/hunter/wiki/Packages)
 
-[1]: https://github.com/ruslo/hunter/blob/master/cmake/config.cmake
+[1]: https://github.com/ruslo/hunter/blob/master/cmake/configs/default.cmake
 [2]: https://github.com/ruslo/hunter/wiki/Hunter-modules#hunter_config
