@@ -415,7 +415,7 @@ macro(HunterGate)
     )
 
     set(_master_location "${hunter_self_}/cmake/Hunter")
-    if(EXISTS "${_master_location}")
+    if(EXISTS "${HUNTER_GATE_ROOT}/cmake/Hunter")
       # Hunter downloaded manually (e.g. by 'git clone')
       set(_unused "xxxxxxxxxx")
       set(HUNTER_GATE_SHA1 "${_unused}")
