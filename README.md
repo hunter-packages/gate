@@ -14,7 +14,7 @@ This is a gate file to [hunter](https://github.com/ruslo/hunter) package manager
 * Copy file `HunterGate.cmake` to project
 * Include gate file: `include("cmake/HunterGate.cmake")`
 * Put any valid [hunter](https://github.com/ruslo/hunter/releases) archive with `SHA1` hash:
-```
+```cmake
 HunterGate(
     URL "https://github.com/ruslo/hunter/archive/v0.7.0.tar.gz"
     SHA1 "e730118c7ec65126398f8d4f09daf9366791ede0"
@@ -36,7 +36,7 @@ HunterGate(
 )
 ```
 * `LOCAL`. Default local config.
-```
+```cmake
 HunterGate(
     URL "https://github.com/ruslo/hunter/archive/v0.7.0.tar.gz"
     SHA1 "e730118c7ec65126398f8d4f09daf9366791ede0"
@@ -44,7 +44,7 @@ HunterGate(
 )
 ```
 * `FILEPATH`. Any location.
-```
+```cmake
 HunterGate(
     URL "https://github.com/ruslo/hunter/archive/v0.7.0.tar.gz"
     SHA1 "e730118c7ec65126398f8d4f09daf9366791ede0"
