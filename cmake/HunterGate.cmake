@@ -203,8 +203,11 @@ endmacro()
 function(hunter_gate_download dir)
   if(NOT HUNTER_RUN_INSTALL)
     hunter_gate_fatal_error(
-        "Hunter not found in '${HUNTER_GATE_ROOT}'"
+        "Hunter not found in '${dir}'"
         "Set HUNTER_RUN_INSTALL=ON to auto-install it from '${HUNTER_GATE_URL}'"
+        "Settings:"
+        "  HUNTER_ROOT: ${HUNTER_GATE_ROOT}"
+        "  HUNTER_SHA1: ${HUNTER_GATE_SHA1}"
         WIKI "error.run.install"
     )
   endif()
