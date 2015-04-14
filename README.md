@@ -55,7 +55,7 @@ HunterGate(
 ### Notes
 
 * You don't need to specify [hunter_config][2] command for all projects. Set version of the package you're interested in - others will be used from default `config.cmake`.
-* If Hunter root directory is empty you need to set [HUNTER_RUN_INSTALL=YES](https://github.com/ruslo/hunter/wiki/CMake-Variables-%28User%29#hunter_run_install) on first run and HunterGate will automatically download it
+* If you want to get full control of what Hunter-SHA1 root directories you want to auto-install you can set [HUNTER_DISABLE_AUTOINSTALL](https://github.com/ruslo/hunter/wiki/CMake-Variables-%28User%29#hunter_disable_autoinstall-environment-variable) environment variable and use [HUNTER_RUN_INSTALL=YES](https://github.com/ruslo/hunter/wiki/CMake-Variables-%28User%29#hunter_run_install) CMake variable to allow installations explicitly.
 
 ## Effects
 * Try to detect `hunter`:
