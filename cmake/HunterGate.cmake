@@ -201,7 +201,14 @@ macro(hunter_gate_lock dir)
 endmacro()
 
 function(hunter_gate_download dir)
-  if(NOT HUNTER_RUN_INSTALL)
+  string(
+      COMPARE
+      NOTEQUAL
+      "$ENV{HUNTER_DISABLE_AUTOINSTALL}"
+      ""
+      disable_autoinstall
+  )
+  if(disable_autoinstall AND NOT HUNTER_RUN_INSTALL)
     hunter_gate_fatal_error(
         "Hunter not found in '${dir}'"
         "Set HUNTER_RUN_INSTALL=ON to auto-install it from '${HUNTER_GATE_URL}'"
