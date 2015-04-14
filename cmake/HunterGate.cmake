@@ -403,12 +403,16 @@ macro(HunterGate)
         HUNTER_GATE_ROOT "${HUNTER_GATE_ROOT}" ABSOLUTE
     )
     hunter_gate_status_debug("HUNTER_ROOT: ${HUNTER_GATE_ROOT}")
-    string(FIND "${HUNTER_GATE_ROOT}" " " _contain_spaces)
-    if(NOT _contain_spaces EQUAL -1)
-      hunter_gate_fatal_error(
-          "HUNTER_ROOT (${HUNTER_GATE_ROOT}) contains spaces"
-          WIKI "error.spaces.in.hunter.root"
-      )
+    if(NOT HUNTER_ALLOW_SPACES_IN_PATH)
+      string(FIND "${HUNTER_GATE_ROOT}" " " _contain_spaces)
+      if(NOT _contain_spaces EQUAL -1)
+        hunter_gate_fatal_error(
+            "HUNTER_ROOT (${HUNTER_GATE_ROOT}) contains spaces."
+            "Set HUNTER_ALLOW_SPACES_IN_PATH=ON to skip this error"
+            "(Use at your own risk!)"
+            WIKI "error.spaces.in.hunter.root"
+        )
+      endif()
     endif()
 
     string(
