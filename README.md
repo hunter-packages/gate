@@ -67,6 +67,9 @@ HunterGate(
 * Set `HUNTER_GATE_*` variables
 * Include hunter master file `include("${HUNTER_SELF}/cmake/Hunter")`
 
+## Flowchart (for developers)
+![flowchart](https://raw.githubusercontent.com/hunter-packages/gate/master/wiki/flowchart.png)
+
 ## Examples
 * [This](https://github.com/hunter-packages/gate/blob/master/CMakeLists.txt)
 * [Simple](https://github.com/forexample/hunter-simple)
