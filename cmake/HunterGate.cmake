@@ -201,10 +201,20 @@ macro(hunter_gate_lock dir)
 endmacro()
 
 function(hunter_gate_download dir)
-  if(NOT HUNTER_RUN_INSTALL)
+  string(
+      COMPARE
+      NOTEQUAL
+      "$ENV{HUNTER_DISABLE_AUTOINSTALL}"
+      ""
+      disable_autoinstall
+  )
+  if(disable_autoinstall AND NOT HUNTER_RUN_INSTALL)
     hunter_gate_fatal_error(
-        "Hunter not found in '${HUNTER_GATE_ROOT}'"
+        "Hunter not found in '${dir}'"
         "Set HUNTER_RUN_INSTALL=ON to auto-install it from '${HUNTER_GATE_URL}'"
+        "Settings:"
+        "  HUNTER_ROOT: ${HUNTER_GATE_ROOT}"
+        "  HUNTER_SHA1: ${HUNTER_GATE_SHA1}"
         WIKI "error.run.install"
     )
   endif()
@@ -393,12 +403,16 @@ macro(HunterGate)
         HUNTER_GATE_ROOT "${HUNTER_GATE_ROOT}" ABSOLUTE
     )
     hunter_gate_status_debug("HUNTER_ROOT: ${HUNTER_GATE_ROOT}")
-    string(FIND "${HUNTER_GATE_ROOT}" " " _contain_spaces)
-    if(NOT _contain_spaces EQUAL -1)
-      hunter_gate_fatal_error(
-          "HUNTER_ROOT (${HUNTER_GATE_ROOT}) contains spaces"
-          WIKI "error.spaces.in.hunter.root"
-      )
+    if(NOT HUNTER_ALLOW_SPACES_IN_PATH)
+      string(FIND "${HUNTER_GATE_ROOT}" " " _contain_spaces)
+      if(NOT _contain_spaces EQUAL -1)
+        hunter_gate_fatal_error(
+            "HUNTER_ROOT (${HUNTER_GATE_ROOT}) contains spaces."
+            "Set HUNTER_ALLOW_SPACES_IN_PATH=ON to skip this error"
+            "(Use at your own risk!)"
+            WIKI "error.spaces.in.hunter.root"
+        )
+      endif()
     endif()
 
     string(
