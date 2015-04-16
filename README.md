@@ -1,4 +1,4 @@
-| linux                                     | macosx                                    |
+| Linux                                     | Mac OS X                                  |
 |-------------------------------------------|-------------------------------------------|
 | [![Build Status][link_master]][link_gate] | [![Build Status][link_macosx]][link_gate] |
 
@@ -7,13 +7,13 @@
 [link_macosx]: https://travis-ci.org/hunter-packages/gate.png?branch=travis.macosx
 [link_gate]: https://travis-ci.org/hunter-packages/gate
 
-This is a gate file to [hunter](https://github.com/ruslo/hunter) package manager.
+This is a gate file to [Hunter](https://github.com/ruslo/hunter) package manager.
 
 ## Usage
 
 * Copy file `HunterGate.cmake` to project
 * Include gate file: `include("cmake/HunterGate.cmake")`
-* Put any valid [hunter](https://github.com/ruslo/hunter/releases) archive with `SHA1` hash:
+* Put any valid [Hunter](https://github.com/ruslo/hunter/releases) archive with `SHA1` hash:
 ```cmake
 HunterGate(
     URL "https://github.com/ruslo/hunter/archive/v0.7.0.tar.gz"
@@ -25,7 +25,7 @@ HunterGate(
 
 Optionally custom [config.cmake][1] file can be specified. File may has different locations:
 
-* `GLOBAL`. The one from hunter archive:
+* `GLOBAL`. The one from Hunter archive:
 ```cmake
 HunterGate(
     URL "https://github.com/ruslo/hunter/archive/v0.7.0.tar.gz"
@@ -58,14 +58,14 @@ HunterGate(
 * If you want to get full control of what Hunter-SHA1 root directories you want to auto-install you can set [HUNTER_DISABLE_AUTOINSTALL](https://github.com/ruslo/hunter/wiki/CMake-Variables-%28User%29#hunter_disable_autoinstall-environment-variable) environment variable and use [HUNTER_RUN_INSTALL=YES](https://github.com/ruslo/hunter/wiki/CMake-Variables-%28User%29#hunter_run_install) CMake variable to allow installations explicitly.
 
 ## Effects
-* Try to detect `hunter`:
- * test cmake variable `HUNTER_ROOT` (control, shared downloads and builds)
+* Try to detect `Hunter`:
+ * test CMake variable `HUNTER_ROOT` (control, shared downloads and builds)
  * test environment variable `HUNTER_ROOT` (**recommended**: control, shared downloads and builds)
  * test directory `${HOME}/.hunter` (shared downloads and builds)
  * test directory `${SYSTEMDRIVE}/.hunter` (shared downloads and builds, windows only)
  * test directory `${USERPROFILE}/.hunter` (shared downloads and builds, windows only)
 * Set `HUNTER_GATE_*` variables
-* Include hunter master file `include("${HUNTER_SELF}/cmake/Hunter")`
+* Include Hunter master file `include("${HUNTER_SELF}/cmake/Hunter")`
 
 ## Flowchart (for developers)
 ![flowchart](https://raw.githubusercontent.com/hunter-packages/gate/master/wiki/flowchart.png)
