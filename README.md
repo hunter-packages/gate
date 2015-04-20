@@ -52,6 +52,8 @@ HunterGate(
 )
 ```
 
+* [Example](https://github.com/ruslo/hunter/wiki/example.custom.config.id)
+
 ### Notes
 
 * You don't need to specify [hunter_config][2] command for all projects. Set version of the package you're interested in - others will be used from default `config.cmake`.
