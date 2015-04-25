@@ -88,7 +88,8 @@ endfunction()
 
 function(hunter_gate_fatal_error)
   cmake_parse_arguments(hunter "" "WIKI" "" "${ARGV}")
-  if(NOT hunter_WIKI)
+  string(COMPARE EQUAL "${hunter_WIKI}" "" have_no_wiki)
+  if(have_no_wiki)
     hunter_gate_internal_error("Expected wiki")
   endif()
   message("")
@@ -137,7 +138,8 @@ endfunction()
 # Set HUNTER_GATE_ROOT cmake variable to suitable value.
 function(hunter_gate_detect_root)
   # Check CMake variable
-  if(HUNTER_ROOT)
+  string(COMPARE NOTEQUAL "${HUNTER_ROOT}" "" not_empty)
+  if(not_empty)
     set(HUNTER_GATE_ROOT "${HUNTER_ROOT}" PARENT_SCOPE)
     hunter_gate_status_debug("HUNTER_ROOT detected by cmake variable")
     return()
@@ -350,9 +352,11 @@ macro(HunterGate)
   else()
     set(HUNTER_GATE_LOCATION "${CMAKE_CURRENT_LIST_DIR}")
 
-    if(PROJECT_NAME)
+    string(COMPARE NOTEQUAL "${PROJECT_NAME}" "" _have_project_name)
+    if(_have_project_name)
       hunter_gate_fatal_error(
-          "Please set HunterGate *before* 'project' command"
+          "Please set HunterGate *before* 'project' command. "
+          "Detected project: ${PROJECT_NAME}"
           WIKI "error.huntergate.before.project"
       )
     endif()
@@ -360,35 +364,48 @@ macro(HunterGate)
     cmake_parse_arguments(
         HUNTER_GATE "LOCAL" "URL;SHA1;GLOBAL;FILEPATH" "" ${ARGV}
     )
-    if(NOT HUNTER_GATE_SHA1)
+
+    string(COMPARE EQUAL "${HUNTER_GATE_SHA1}" "" _empty_sha1)
+    string(COMPARE EQUAL "${HUNTER_GATE_URL}" "" _empty_url)
+    string(
+        COMPARE
+        NOTEQUAL
+        "${HUNTER_GATE_UNPARSED_ARGUMENTS}"
+        ""
+        _have_unparsed
+    )
+    string(COMPARE NOTEQUAL "${HUNTER_GATE_GLOBAL}" "" _have_global)
+    string(COMPARE NOTEQUAL "${HUNTER_GATE_FILEPATH}" "" _have_filepath)
+
+    if(_empty_sha1)
       hunter_gate_user_error("SHA1 suboption of HunterGate is mandatory")
     endif()
-    if(NOT HUNTER_GATE_URL)
+    if(_empty_url)
       hunter_gate_user_error("URL suboption of HunterGate is mandatory")
     endif()
-    if(HUNTER_GATE_UNPARSED_ARGUMENTS)
+    if(_have_unparsed)
       hunter_gate_user_error(
           "HunterGate unparsed arguments: ${HUNTER_GATE_UNPARSED_ARGUMENTS}"
       )
     endif()
-    if(HUNTER_GATE_GLOBAL)
+    if(_have_global)
       if(HUNTER_GATE_LOCAL)
         hunter_gate_user_error("Unexpected LOCAL (already has GLOBAL)")
       endif()
-      if(HUNTER_GATE_FILEPATH)
+      if(_have_filepath)
         hunter_gate_user_error("Unexpected FILEPATH (already has GLOBAL)")
       endif()
     endif()
     if(HUNTER_GATE_LOCAL)
-      if(HUNTER_GATE_GLOBAL)
+      if(_have_global)
         hunter_gate_user_error("Unexpected GLOBAL (already has LOCAL)")
       endif()
-      if(HUNTER_GATE_FILEPATH)
+      if(_have_filepath)
         hunter_gate_user_error("Unexpected FILEPATH (already has LOCAL)")
       endif()
     endif()
-    if(HUNTER_GATE_FILEPATH)
-      if(HUNTER_GATE_GLOBAL)
+    if(_have_filepath)
+      if(_have_global)
         hunter_gate_user_error("Unexpected GLOBAL (already has FILEPATH)")
       endif()
       if(HUNTER_GATE_LOCAL)
