@@ -448,17 +448,17 @@ macro(HunterGate)
         "${HUNTER_GATE_ROOT}"
         "${HUNTER_GATE_VERSION}"
         "${HUNTER_GATE_SHA1}"
-        hunter_self_
+        _hunter_self
     )
 
-    set(_master_location "${hunter_self_}/cmake/Hunter")
+    set(_master_location "${_hunter_self}/cmake/Hunter")
     if(EXISTS "${HUNTER_GATE_ROOT}/cmake/Hunter")
       # Hunter downloaded manually (e.g. by 'git clone')
       set(_unused "xxxxxxxxxx")
       set(HUNTER_GATE_SHA1 "${_unused}")
       set(HUNTER_GATE_VERSION "${_unused}")
     else()
-      get_filename_component(_archive_id_location "${hunter_self_}/.." ABSOLUTE)
+      get_filename_component(_archive_id_location "${_hunter_self}/.." ABSOLUTE)
       set(_done_location "${_archive_id_location}/DONE")
       set(_sha1_location "${_archive_id_location}/SHA1")
 
