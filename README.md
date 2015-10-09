@@ -56,6 +56,7 @@ HunterGate(
 
 ### Notes
 
+* If you're in process of patching Hunter and have a HUNTER_ROOT pointed to git repository location then HunterGate will not use `URL` and `SHA1` values. It means when you update `SHA1` of Hunter archive new commits/fixes will not be applied at all. In this case you have to update your git repo manually (i.e. do `git pull`)
 * You don't need to specify [hunter_config][2] command for all projects. Set version of the package you're interested in - others will be used from default `config.cmake`.
 * If you want to get full control of what Hunter-SHA1 root directories you want to auto-install you can set [HUNTER_DISABLE_AUTOINSTALL](https://github.com/ruslo/hunter/wiki/CMake-Variables-%28User%29#hunter_disable_autoinstall-environment-variable) environment variable and use [HUNTER_RUN_INSTALL=YES](https://github.com/ruslo/hunter/wiki/CMake-Variables-%28User%29#hunter_run_install) CMake variable to allow installations explicitly.
 
