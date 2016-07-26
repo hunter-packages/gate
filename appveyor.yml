@@ -38,9 +38,6 @@ environment:
 
     - TOOLCHAIN: "mingw"
       CONFIG: Release
-
-    - TOOLCHAIN: "msys"
-      CONFIG: Release
     # }
 
     # Debug {
@@ -78,9 +75,6 @@ environment:
       CONFIG: Debug
 
     - TOOLCHAIN: "mingw"
-      CONFIG: Debug
-
-    - TOOLCHAIN: "msys"
       CONFIG: Debug
     # }
 
