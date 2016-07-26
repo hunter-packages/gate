@@ -110,6 +110,6 @@ install:
 
 build_script:
   # download all
-  - build.py --toolchain ${TOOLCHAIN} --config ${CONFIG} --verbose
+  - cmd: python %POLLY_ROOT%\bin\polly.py --toolchain "%TOOLCHAIN%" --config "%CONFIG%" --verbose
   # if run generate again, no download needed
-  - build.py --toolchain ${TOOLCHAIN} --config ${CONFIG} --verbose
+  - cmd: python %POLLY_ROOT%\bin\polly.py --toolchain "%TOOLCHAIN%" --config "%CONFIG%" --verbose
