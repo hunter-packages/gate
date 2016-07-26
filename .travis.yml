@@ -1,61 +1,136 @@
-# Linux (https://github.com/travis-ci-tester/toolchain-table)
+# OSX/Linux (https://github.com/travis-ci-tester/toolchain-table)
 
 language:
-    - python
+  - cpp
 
-python:
-    - "3.3"
+# Container-based infrastructure (Linux)
+# * https://docs.travis-ci.com/user/migrating-from-legacy/#How-can-I-use-container-based-infrastructure%3F
+sudo:
+  - false
 
-env:
-    - TOOLCHAIN=default CONFIG=Release
-    - TOOLCHAIN=default CONFIG=Debug
-    - TOOLCHAIN=clang-libstdcxx CONFIG=Release
-    - TOOLCHAIN=clang-libstdcxx CONFIG=Debug
-    - TOOLCHAIN=gcc-4-8 CONFIG=Release
-    - TOOLCHAIN=gcc-4-8 CONFIG=Debug
-    - TOOLCHAIN=analyze CONFIG=Release
-    - TOOLCHAIN=analyze CONFIG=Debug
-    - TOOLCHAIN=sanitize-address CONFIG=Release
-    - TOOLCHAIN=sanitize-address CONFIG=Debug
-    - TOOLCHAIN=sanitize-leak CONFIG=Release
-    - TOOLCHAIN=sanitize-leak CONFIG=Debug
-    - TOOLCHAIN=sanitize-thread CONFIG=Release
-    - TOOLCHAIN=sanitize-thread CONFIG=Debug
+# Install packages differs for container-based infrastructure
+# * https://docs.travis-ci.com/user/migrating-from-legacy/#How-do-I-install-APT-sources-and-packages%3F
+# * http://stackoverflow.com/a/30925448/2288008
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - python3
+
+      # python3-pip package is not available, use 'easy_install3':
+      # * https://github.com/travis-ci/apt-package-whitelist/issues/768
+      - python3-setuptools # easy_install3
+
+      # https://github.com/travis-ci-tester/travis-test-clang-cxx-11
+      - libstdc++-4.8-dev
+
+      # https://github.com/travis-ci-tester/travis-test-gcc-cxx-11
+      - g++-4.8
+
+matrix:
+  include:
+    # Linux {
+    - os: linux
+      env: CONFIG=Release TOOLCHAIN=default
+    - os: linux
+      env: CONFIG=Debug TOOLCHAIN=default
+    - os: linux
+      env: CONFIG=Release TOOLCHAIN=clang-libstdcxx
+    - os: linux
+      env: CONFIG=Debug TOOLCHAIN=clang-libstdcxx
+    - os: linux
+      env: CONFIG=Release TOOLCHAIN=gcc-4-8
+    - os: linux
+      env: CONFIG=Debug TOOLCHAIN=gcc-4-8
+    - os: linux
+      env: CONFIG=Release TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon
+    - os: linux
+      env: CONFIG=Debug TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon
+    - os: linux
+      env: CONFIG=Release TOOLCHAIN=analyze
+    - os: linux
+      env: CONFIG=Debug TOOLCHAIN=analyze
+    - os: linux
+      env: CONFIG=Release TOOLCHAIN=sanitize-address
+    - os: linux
+      env: CONFIG=Debug TOOLCHAIN=sanitize-address
+    - os: linux
+      env: CONFIG=Release TOOLCHAIN=sanitize-leak
+    - os: linux
+      env: CONFIG=Debug TOOLCHAIN=sanitize-leak
+    - os: linux
+      env: CONFIG=Release TOOLCHAIN=sanitize-thread
+    - os: linux
+      env: CONFIG=Debug TOOLCHAIN=sanitize-thread
+    # }
+
+    # OSX {
+    - os: osx
+      env: CONFIG=Release TOOLCHAIN=default
+    - os: osx
+      env: CONFIG=Debug TOOLCHAIN=default
+    - os: osx
+      env: CONFIG=Release TOOLCHAIN=libcxx
+    - os: osx
+      env: CONFIG=Debug TOOLCHAIN=libcxx
+    - os: osx
+      env: CONFIG=Release TOOLCHAIN=clang-libstdcxx
+    - os: osx
+      env: CONFIG=Debug TOOLCHAIN=clang-libstdcxx
+    - os: osx
+      env: CONFIG=Release TOOLCHAIN=osx-10-9
+    - os: osx
+      env: CONFIG=Debug TOOLCHAIN=osx-10-9
+    - os: osx
+      env: CONFIG=Release TOOLCHAIN=ios-nocodesign
+    - os: osx
+      env: CONFIG=Debug TOOLCHAIN=ios-nocodesign
+    - os: osx
+      osx_image: xcode7.3
+      env: CONFIG=Release TOOLCHAIN=ios-nocodesign-9-3
+    - os: osx
+      osx_image: xcode7.3
+      env: CONFIG=Debug TOOLCHAIN=ios-nocodesign-9-3
+    - os: osx
+      env: CONFIG=Release TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon
+    - os: osx
+      env: CONFIG=Debug TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon
+    - os: osx
+      env: CONFIG=Release TOOLCHAIN=analyze
+    - os: osx
+      env: CONFIG=Debug TOOLCHAIN=analyze
+    # }
 
 install:
-    # install gcc-4.8 with c++11 support: https://github.com/travis-ci-tester/travis-test-gcc-cxx-11
-    - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-    - sudo apt-get update
-    - sudo apt-get install g++-4.8
-    # -- end
-    # https://github.com/travis-ci-tester/travis-test-clang-cxx-11
-    - sudo apt-get install libstdc++-4.8-dev
-    # -- end
-    - sudo apt-get install cmake
-    - sudo apt-get install libcurl3-dev
-    # install cmake toolchains and script
-    - POLLY_VERSION="0.6.1"
-    - wget "https://github.com/ruslo/polly/archive/v${POLLY_VERSION}.tar.gz"
-    - tar xf "v${POLLY_VERSION}.tar.gz"
-    - export PATH="`pwd`/polly-${POLLY_VERSION}/bin:${PATH}"
-    # -- end
-    # install cmake
-    - CMAKE_VERSION="3.2.1-ruslo"
-    - wget "https://github.com/ruslo/CMake/archive/v${CMAKE_VERSION}.tar.gz"
-    - openssl sha1 "v${CMAKE_VERSION}.tar.gz"
-    - tar xf "v${CMAKE_VERSION}.tar.gz"
-    - cd "CMake-${CMAKE_VERSION}"
-    -   build.py --install --toolchain default --config Release --fwd "CMAKE_USE_SYSTEM_CURL=YES"
-    -   export PATH="`pwd`/_install/default/bin:${PATH}"
-    - cd ..
-    # -- end
-    # verify installed cmake
-    - which cmake
-    - cmake --version
-    # -- end
+  # Info about OS
+  - uname -a
+
+  # Install Python 3
+  - if [[ "`uname`" == "Darwin" ]]; then travis_retry brew install python3; fi
+
+  # Install Python package 'requests'
+  # 'easy_install3' is not installed by 'brew install python3' on OS X 10.9 Maverick
+  - if [[ "`uname`" == "Darwin" ]]; then pip3 install requests; fi
+  - if [[ "`uname`" == "Linux" ]]; then easy_install3 --user requests; fi
+
+  # Install latest Polly toolchains and scripts
+  - wget https://github.com/ruslo/polly/archive/master.zip
+  - unzip master.zip
+  - POLLY_ROOT="`pwd`/polly-master"
+  - export PATH="${POLLY_ROOT}/bin:${PATH}"
+
+  # Install dependencies (CMake, Android NDK)
+  - install-ci-dependencies.py
+
+  # Tune locations
+  - export PATH="`pwd`/_ci/cmake/bin:${PATH}"
+
+  # Installed if toolchain is Android (otherwise directory doesn't exist)
+  - export ANDROID_NDK_r10e="`pwd`/_ci/android-ndk-r10e"
 
 script:
-    # download all
-    - build.py --toolchain ${TOOLCHAIN} --config ${CONFIG} --verbose
-    # if run generate again, no download needed
-    - build.py --toolchain ${TOOLCHAIN} --config ${CONFIG} --verbose
+  # download all
+  - build.py --toolchain ${TOOLCHAIN} --config ${CONFIG} --verbose
+  # if run generate again, no download needed
+  - build.py --toolchain ${TOOLCHAIN} --config ${CONFIG} --verbose
