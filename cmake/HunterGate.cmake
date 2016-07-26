@@ -287,8 +287,19 @@ function(hunter_gate_download dir)
   endif()
 
   hunter_gate_status_debug("Run generate")
+
+  # Need to add toolchain file too.
+  # Otherwise on Visual Studio + MDD this will fail with error:
+  # "Could not find an appropriate version of the Windows 10 SDK installed on this machine"
+  if(EXISTS "${CMAKE_TOOLCHAIN_FILE}")
+    set(toolchain_arg "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}")
+  else()
+    # 'toolchain_arg' can't be empty
+    set(toolchain_arg "-DCMAKE_TOOLCHAIN_FILE=")
+  endif()
+
   execute_process(
-      COMMAND "${CMAKE_COMMAND}" "-H${dir}" "-B${build_dir}" "-G${CMAKE_GENERATOR}"
+      COMMAND "${CMAKE_COMMAND}" "-H${dir}" "-B${build_dir}" "-G${CMAKE_GENERATOR}" "${toolchain_arg}"
       WORKING_DIRECTORY "${dir}"
       RESULT_VARIABLE download_result
       ${logging_params}
