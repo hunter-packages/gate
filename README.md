@@ -1,11 +1,12 @@
-| Linux                                     | Mac OS X                                  |
-|-------------------------------------------|-------------------------------------------|
-| [![Build Status][link_master]][link_gate] | [![Build Status][link_macosx]][link_gate] |
+| Linux/OSX                                       | Windows                                             |
+|-------------------------------------------------|-----------------------------------------------------|
+| [![Build Status][travis_status]][travis_builds] | [![Build Status][appveyor_status]][appveyor_builds] |
 
+[travis_status]: https://travis-ci.org/hunter-packages/gate.png?branch=master
+[travis_builds]: https://travis-ci.org/hunter-packages/gate
 
-[link_master]: https://travis-ci.org/hunter-packages/gate.png?branch=master
-[link_macosx]: https://travis-ci.org/hunter-packages/gate.png?branch=travis.macosx
-[link_gate]: https://travis-ci.org/hunter-packages/gate
+[appveyor_status]: https://ci.appveyor.com/api/projects/status/nmkbcuoxwre7w2jp/branch/master?svg=true
+[appveyor_builds]: https://ci.appveyor.com/project/ruslo/gate/branch/master
 
 This is a gate file to [Hunter](https://github.com/ruslo/hunter) package manager.
 
