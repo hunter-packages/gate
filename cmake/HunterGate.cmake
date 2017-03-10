@@ -1,4 +1,4 @@
-# Copyright (c) 2013-2015, Ruslan Baratov
+# Copyright (c) 2013-2017, Ruslan Baratov
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -304,8 +304,22 @@ function(hunter_gate_download dir)
     set(toolchain_arg "-DCMAKE_TOOLCHAIN_FILE=")
   endif()
 
+  string(COMPARE EQUAL "${CMAKE_MAKE_PROGRAM}" "" no_make)
+  if(no_make)
+    set(make_arg "")
+  else()
+    # Test case: remove Ninja from PATH but set it via CMAKE_MAKE_PROGRAM
+    set(make_arg "-DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}")
+  endif()
+
   execute_process(
-      COMMAND "${CMAKE_COMMAND}" "-H${dir}" "-B${build_dir}" "-G${CMAKE_GENERATOR}" "${toolchain_arg}"
+      COMMAND
+      "${CMAKE_COMMAND}"
+      "-H${dir}"
+      "-B${build_dir}"
+      "-G${CMAKE_GENERATOR}"
+      "${toolchain_arg}"
+      ${make_arg}
       WORKING_DIRECTORY "${dir}"
       RESULT_VARIABLE download_result
       ${logging_params}
