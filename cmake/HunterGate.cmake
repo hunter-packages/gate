@@ -335,7 +335,7 @@ function(hunter_gate_download dir)
       "  -> ${dir}"
   )
   execute_process(
-      COMMAND "${CMAKE_COMMAND}" --build "${build_dir}"
+      COMMAND "${CMAKE_COMMAND}" "-G${CMAKE_GENERATOR}" --build "${build_dir}"
       WORKING_DIRECTORY "${dir}"
       RESULT_VARIABLE download_result
       ${logging_params}
