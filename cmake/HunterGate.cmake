@@ -298,7 +298,8 @@ function(hunter_gate_download dir)
   # Otherwise on Visual Studio + MDD this will fail with error:
   # "Could not find an appropriate version of the Windows 10 SDK installed on this machine"
   if(EXISTS "${CMAKE_TOOLCHAIN_FILE}")
-    set(toolchain_arg "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}")
+    get_filename_component(absolute_CMAKE_TOOLCHAIN_FILE "${CMAKE_TOOLCHAIN_FILE}" ABSOLUTE)
+    set(toolchain_arg "-DCMAKE_TOOLCHAIN_FILE=${absolute_CMAKE_TOOLCHAIN_FILE}")
   else()
     # 'toolchain_arg' can't be empty
     set(toolchain_arg "-DCMAKE_TOOLCHAIN_FILE=")
