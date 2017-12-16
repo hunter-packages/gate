@@ -275,6 +275,8 @@ function(hunter_gate_download dir)
       "    SHA1=${HUNTER_GATE_SHA1}\n"
       "    DOWNLOAD_DIR\n"
       "    \"${dir}\"\n"
+      "    TLS_VERIFY\n"
+      "    ON\n"
       "    SOURCE_DIR\n"
       "    \"${dir}/Unpacked\"\n"
       "    CONFIGURE_COMMAND\n"
