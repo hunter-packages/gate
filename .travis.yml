@@ -1,12 +1,20 @@
 # OSX/Linux (https://github.com/travis-ci-tester/toolchain-table)
 
+# Workaround for https://github.com/travis-ci/travis-ci/issues/8363
 language:
-  - cpp
+  - minimal
 
 # Container-based infrastructure (Linux)
 # * https://docs.travis-ci.com/user/migrating-from-legacy/#How-can-I-use-container-based-infrastructure%3F
 sudo:
   - false
+
+# Install packages differs for container-based infrastructure
+# * https://docs.travis-ci.com/user/migrating-from-legacy/#How-do-I-install-APT-sources-and-packages%3F
+addons:
+  apt:
+    packages:
+      - python3-pip
 
 dist:
   - trusty
@@ -53,38 +61,26 @@ matrix:
 
     # OSX {
     - os: osx
-      env: CONFIG=Release TOOLCHAIN=default
-    - os: osx
-      env: CONFIG=Debug TOOLCHAIN=default
-    - os: osx
       env: CONFIG=Release TOOLCHAIN=libcxx
     - os: osx
       env: CONFIG=Debug TOOLCHAIN=libcxx
     - os: osx
-      env: CONFIG=Release TOOLCHAIN=clang-libstdcxx
+      env: CONFIG=Release TOOLCHAIN=osx-10-12
     - os: osx
-      env: CONFIG=Debug TOOLCHAIN=clang-libstdcxx
+      env: CONFIG=Debug TOOLCHAIN=osx-10-12
     - os: osx
-      env: CONFIG=Release TOOLCHAIN=osx-10-11
+      env: CONFIG=Release TOOLCHAIN=ios-nocodesign-10-3
     - os: osx
-      env: CONFIG=Debug TOOLCHAIN=osx-10-11
-    - os: osx
-      env: CONFIG=Release TOOLCHAIN=ios-nocodesign-9-3
-    - os: osx
-      env: CONFIG=Debug TOOLCHAIN=ios-nocodesign-9-3
-    - os: osx
-      env: CONFIG=Release TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon
-    - os: osx
-      env: CONFIG=Debug TOOLCHAIN=android-ndk-r10e-api-19-armeabi-v7a-neon
-    - os: osx
-      env: CONFIG=Release TOOLCHAIN=analyze
-    - os: osx
-      env: CONFIG=Debug TOOLCHAIN=analyze
+      env: CONFIG=Debug TOOLCHAIN=ios-nocodesign-10-3
     # }
 
 install:
   # Info about OS
   - uname -a
+
+  # Disable autoupdate
+  # * https://github.com/Homebrew/brew/blob/7d31a70373edae4d8e78d91a4cbc05324bebc3ba/Library/Homebrew/manpages/brew.1.md.erb#L202
+  - export HOMEBREW_NO_AUTO_UPDATE=1
 
   # Install Python 3
   - if [[ "`uname`" == "Darwin" ]]; then travis_retry brew install python3; fi
@@ -111,6 +107,6 @@ install:
 
 script:
   # download all
-  - build.py --toolchain ${TOOLCHAIN} --config ${CONFIG} --verbose
+  - polly.py --toolchain ${TOOLCHAIN} --config ${CONFIG} --verbose
   # if run generate again, no download needed
-  - build.py --toolchain ${TOOLCHAIN} --config ${CONFIG} --verbose
+  - polly.py --toolchain ${TOOLCHAIN} --config ${CONFIG} --verbose
