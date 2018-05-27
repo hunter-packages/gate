@@ -1,4 +1,4 @@
-# Copyright (c) 2013-2017, Ruslan Baratov
+# Copyright (c) 2013-2018, Ruslan Baratov
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
 # This is a gate file to Hunter package manager.
 # Include this file using `include` command and add package you need, example:
 #
-#     cmake_minimum_required(VERSION 3.0)
+#     cmake_minimum_required(VERSION 3.2)
 #
 #     include("cmake/HunterGate.cmake")
 #     HunterGate(
@@ -43,10 +43,14 @@
 #     * https://github.com/ruslo/hunter
 
 option(HUNTER_ENABLED "Enable Hunter package manager support" ON)
+
 if(HUNTER_ENABLED)
-  if(CMAKE_VERSION VERSION_LESS "3.0")
-    message(FATAL_ERROR "At least CMake version 3.0 required for hunter dependency management."
-      " Update CMake or set HUNTER_ENABLED to OFF.")
+  if(CMAKE_VERSION VERSION_LESS "3.2")
+    message(
+        FATAL_ERROR
+        "At least CMake version 3.2 required for Hunter dependency management."
+        " Update CMake or set HUNTER_ENABLED to OFF."
+    )
   endif()
 endif()
 
@@ -195,20 +199,6 @@ function(hunter_gate_detect_root)
   )
 endfunction()
 
-macro(hunter_gate_lock dir)
-  if(NOT HUNTER_SKIP_LOCK)
-    if("${CMAKE_VERSION}" VERSION_LESS "3.2")
-      hunter_gate_fatal_error(
-          "Can't lock, upgrade to CMake 3.2 or use HUNTER_SKIP_LOCK"
-          WIKI "error.can.not.lock"
-      )
-    endif()
-    hunter_gate_status_debug("Locking directory: ${dir}")
-    file(LOCK "${dir}" DIRECTORY GUARD FUNCTION)
-    hunter_gate_status_debug("Lock done")
-  endif()
-endmacro()
-
 function(hunter_gate_download dir)
   string(
       COMPARE
@@ -248,7 +238,10 @@ function(hunter_gate_download dir)
   set(build_dir "${dir}/Build")
   set(cmakelists "${dir}/CMakeLists.txt")
 
-  hunter_gate_lock("${dir}")
+  hunter_gate_status_debug("Locking directory: ${dir}")
+  file(LOCK "${dir}" DIRECTORY GUARD FUNCTION)
+  hunter_gate_status_debug("Lock done")
+
   if(EXISTS "${done_location}")
     # while waiting for lock other instance can do all the job
     hunter_gate_status_debug("File '${done_location}' found, skip install")
@@ -265,7 +258,7 @@ function(hunter_gate_download dir)
   file(
       WRITE
       "${cmakelists}"
-      "cmake_minimum_required(VERSION 3.0)\n"
+      "cmake_minimum_required(VERSION 3.2)\n"
       "project(HunterDownload LANGUAGES NONE)\n"
       "include(ExternalProject)\n"
       "ExternalProject_Add(\n"
