@@ -389,7 +389,7 @@ macro(HunterGate)
     )
     include("${_hunter_self}/cmake/Hunter")
   else()
-    set(HUNTER_GATE_LOCATION "${CMAKE_CURRENT_LIST_DIR}")
+    set(HUNTER_GATE_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}")
 
     string(COMPARE NOTEQUAL "${PROJECT_NAME}" "" _have_project_name)
     if(_have_project_name)
