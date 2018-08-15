@@ -61,17 +61,28 @@ matrix:
 
     # OSX {
     - os: osx
+      osx_image: xcode9.4
       env: CONFIG=Release TOOLCHAIN=libcxx
+
     - os: osx
+      osx_image: xcode9.4
       env: CONFIG=Debug TOOLCHAIN=libcxx
+
     - os: osx
-      env: CONFIG=Release TOOLCHAIN=osx-10-12
+      osx_image: xcode9.4
+      env: CONFIG=Release TOOLCHAIN=osx-10-13-cxx14
+
     - os: osx
-      env: CONFIG=Debug TOOLCHAIN=osx-10-12
+      osx_image: xcode9.4
+      env: CONFIG=Debug TOOLCHAIN=osx-10-13-cxx14
+
     - os: osx
-      env: CONFIG=Release TOOLCHAIN=ios-nocodesign-10-3
+      osx_image: xcode9.4
+      env: CONFIG=Release TOOLCHAIN=ios-nocodesign-11-4-dep-9-3
+
     - os: osx
-      env: CONFIG=Debug TOOLCHAIN=ios-nocodesign-10-3
+      osx_image: xcode9.4
+      env: CONFIG=Debug TOOLCHAIN=ios-nocodesign-11-4-dep-9-3
     # }
 
 install:
