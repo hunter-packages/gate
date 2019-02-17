@@ -1,4 +1,4 @@
-# Copyright (c) 2013-2018, Ruslan Baratov
+# Copyright (c) 2013-2019, Ruslan Baratov
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
