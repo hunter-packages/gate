@@ -81,7 +81,7 @@ endfunction()
 
 function(hunter_gate_error_page error_page)
   message("------------------------------ ERROR ------------------------------")
-  message("    ${HUNTER_ERROR_PAGE}/${error_page}")
+  message("    ${HUNTER_ERROR_PAGE}/${error_page}.html")
   message("-------------------------------------------------------------------")
   message("")
   message(FATAL_ERROR "")
