@@ -79,7 +79,7 @@ function(hunter_gate_status_debug)
   endif()
 endfunction()
 
-function(hunter_gate_wiki error_page)
+function(hunter_gate_error_page error_page)
   message("------------------------------ ERROR ------------------------------")
   message("    ${HUNTER_ERROR_PAGE}/${error_page}")
   message("-------------------------------------------------------------------")
@@ -94,14 +94,13 @@ function(hunter_gate_internal_error)
   endforeach()
   message("[hunter ** INTERNAL **] [Directory:${CMAKE_CURRENT_LIST_DIR}]")
   message("")
-  hunter_gate_wiki("error.internal")
+  hunter_gate_error_page("error.internal")
 endfunction()
 
 function(hunter_gate_fatal_error)
-  cmake_parse_arguments(hunter "" "WIKI" "" "${ARGV}")
-  string(COMPARE EQUAL "${hunter_WIKI}" "" have_no_wiki)
-  if(have_no_wiki)
-    hunter_gate_internal_error("Expected wiki")
+  cmake_parse_arguments(hunter "" "ERROR_PAGE" "" "${ARGV}")
+  if("${hunter_ERROR_PAGE}" STREQUAL "")
+    hunter_gate_internal_error("Expected ERROR_PAGE")
   endif()
   message("")
   foreach(x ${hunter_UNPARSED_ARGUMENTS})
@@ -109,11 +108,11 @@ function(hunter_gate_fatal_error)
   endforeach()
   message("[hunter ** FATAL ERROR **] [Directory:${CMAKE_CURRENT_LIST_DIR}]")
   message("")
-  hunter_gate_wiki("${hunter_WIKI}")
+  hunter_gate_error_page("${hunter_ERROR_PAGE}")
 endfunction()
 
 function(hunter_gate_user_error)
-  hunter_gate_fatal_error(${ARGV} WIKI "error.incorrect.input.data")
+  hunter_gate_fatal_error(${ARGV} ERROR_PAGE "error.incorrect.input.data")
 endfunction()
 
 function(hunter_gate_self root version sha1 result)
@@ -191,7 +190,7 @@ function(hunter_gate_detect_root)
 
   hunter_gate_fatal_error(
       "Can't detect HUNTER_ROOT"
-      WIKI "error.detect.hunter.root"
+      ERROR_PAGE "error.detect.hunter.root"
   )
 endfunction()
 
@@ -210,7 +209,7 @@ function(hunter_gate_download dir)
         "Settings:"
         "  HUNTER_ROOT: ${HUNTER_GATE_ROOT}"
         "  HUNTER_SHA1: ${HUNTER_GATE_SHA1}"
-        WIKI "error.run.install"
+        ERROR_PAGE "error.run.install"
     )
   endif()
   string(COMPARE EQUAL "${dir}" "" is_bad)
@@ -396,7 +395,7 @@ macro(HunterGate)
       hunter_gate_fatal_error(
           "Please set HunterGate *before* 'project' command. "
           "Detected project: ${PROJECT_NAME}"
-          WIKI "error.huntergate.before.project"
+          ERROR_PAGE "error.huntergate.before.project"
       )
     endif()
 
@@ -466,7 +465,7 @@ macro(HunterGate)
             "HUNTER_ROOT (${HUNTER_GATE_ROOT}) contains spaces."
             "Set HUNTER_ALLOW_SPACES_IN_PATH=ON to skip this error"
             "(Use at your own risk!)"
-            WIKI "error.spaces.in.hunter.root"
+            ERROR_PAGE "error.spaces.in.hunter.root"
         )
       endif()
     endif()
