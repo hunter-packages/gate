@@ -59,6 +59,7 @@ include(CMakeParseArguments) # cmake_parse_arguments
 option(HUNTER_STATUS_PRINT "Print working status" ON)
 option(HUNTER_STATUS_DEBUG "Print a lot info" OFF)
 option(HUNTER_TLS_VERIFY "Enable/disable TLS certificate checking on downloads" ON)
+set(HUNTER_SELF_OVERRIDE "" CACHE FILEPATH "Override HUNTER_SELF just before including it for easy debugging")
 
 set(HUNTER_ERROR_PAGE "https://hunter.readthedocs.io/en/latest/reference/errors")
 
@@ -386,6 +387,9 @@ macro(HunterGate)
         "${HUNTER_SHA1}"
         _hunter_self
     )
+    if(HUNTER_SELF_OVERRIDE)
+      set(_hunter_self "${HUNTER_SELF_OVERRIDE}")
+    endif()
     include("${_hunter_self}/cmake/Hunter")
   else()
     set(HUNTER_GATE_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -521,6 +525,9 @@ macro(HunterGate)
           "  ${_master_location}"
           "try to update Hunter/HunterGate"
       )
+    endif()
+    if(HUNTER_SELF_OVERRIDE)
+      set(_master_location "${HUNTER_SELF_OVERRIDE}/cmake/Hunter")
     endif()
     include("${_master_location}")
     set_property(GLOBAL PROPERTY HUNTER_GATE_DONE YES)
